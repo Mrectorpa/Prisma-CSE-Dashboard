@@ -1047,9 +1047,10 @@ function createPie(canvasId, consumed, assigned, isBandwidth, label) {
 }
 
 // ── Render a single tenant card ────────────────────────────────────
-function renderCard(tenant, twoFiles) {
+function renderCard(tenant, twoFiles, tab, seq) {
   const { name, id, region, fileA, fileB, status, deltaUtil, isBandwidth } = tenant;
-  const cardId = 'card-' + btoa(encodeURIComponent(name + id)).replace(/[^a-zA-Z0-9]/g, '').slice(0, 20);
+  // Use tab + sequence number for guaranteed-unique, valid HTML IDs
+  const cardId = `card-${tab}-${seq}`;
 
   const badgeHtml = twoFiles && status === 'new'
     ? '<span class="status-badge badge-new">NEW</span>'
@@ -1155,14 +1156,8 @@ function renderGrid(tab) {
     return;
   }
 
-  // Destroy all existing charts for this tab to avoid memory leaks
-  Object.keys(state.charts).forEach(id => {
-    if (id.includes('-A') || id.includes('-B')) {
-      // Only destroy charts belonging to this tab's grid
-      const el = document.getElementById(id);
-      if (el && grid.contains(el)) destroyChart(id);
-    }
-  });
+  // Destroy ALL existing Chart.js instances — grid.innerHTML wipes the canvases anyway
+  Object.keys(state.charts).forEach(id => destroyChart(id));
 
   let data = mergeData(tab);
   populateRegionFilter(tab, data);
@@ -1187,7 +1182,9 @@ function renderGrid(tab) {
     data.length + ' tenant' + (data.length !== 1 ? 's' : '');
 
   const twoFiles = hasA && hasB;
-  const cards = data.map(t => renderCard(t, twoFiles));
+  // Use a per-render counter for guaranteed-unique canvas IDs
+  let cardSeq = 0;
+  const cards = data.map(t => renderCard(t, twoFiles, tab, cardSeq++));
 
   grid.innerHTML = cards.map(c => c.html).join('');
 
@@ -1196,6 +1193,8 @@ function renderGrid(tab) {
     cards.forEach(c => {
       if (c.fileA) createPie(c.canvasIdA, c.fileA.consumed, c.fileA.assigned, c.isBandwidth, 'A');
       if (twoFiles && c.fileB) createPie(c.canvasIdB, c.fileB.consumed, c.fileB.assigned, c.isBandwidth, 'B');
+      // Single-file mode: fileB only (no fileA) — e.g. status='new' with only fileB loaded
+      if (!twoFiles && !c.fileA && c.fileB) createPie(c.canvasIdA, c.fileB.consumed, c.fileB.assigned, c.isBandwidth, 'B');
     });
   });
 }
