@@ -1051,9 +1051,9 @@ function renderCard(tenant, twoFiles) {
   const { name, id, region, fileA, fileB, status, deltaUtil, isBandwidth } = tenant;
   const cardId = 'card-' + btoa(encodeURIComponent(name + id)).replace(/[^a-zA-Z0-9]/g, '').slice(0, 20);
 
-  const badgeHtml = status === 'new'
+  const badgeHtml = twoFiles && status === 'new'
     ? '<span class="status-badge badge-new">NEW</span>'
-    : status === 'removed'
+    : twoFiles && status === 'removed'
     ? '<span class="status-badge badge-removed">REMOVED</span>'
     : '';
 
