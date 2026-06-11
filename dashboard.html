@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prisma CSE License Dashboard</title>
+
+  <!-- SheetJS for .xlsx parsing -->
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+  <!-- Chart.js for pie charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+  <style>
+    /* ── Design Tokens ─────────────────────────────────────────── */
+    :root {
+      --pan-navy:       #1F4E79;
+      --pan-navy-dark:  #163a5c;
+      --pan-teal:       #00C0E8;
+      --pan-teal-dark:  #0099bb;
+      --pan-white:      #FFFFFF;
+      --pan-bg:         #F4F6F9;
+      --pan-card:       #FFFFFF;
+      --pan-border:     #D0D9E4;
+      --pan-text:       #1a2b3c;
+      --pan-muted:      #5a7a99;
+      --pan-new:        #16a34a;
+      --pan-removed:    #dc2626;
+      --pan-consumed:   #00C0E8;
+      --pan-remaining:  #1F4E79;
+      --radius:         10px;
+      --shadow:         0 2px 12px rgba(31,78,121,0.10);
+      --shadow-hover:   0 6px 24px rgba(31,78,121,0.18);
+    }
+
+    /* ── Reset & Base ──────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--pan-bg);
+      color: var(--pan-text);
+      min-height: 100vh;
+    }
+
+    /* ── Header ────────────────────────────────────────────────── */
+    header {
+      background: var(--pan-navy);
+      color: var(--pan-white);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .header-logo {
+      width: 36px;
+      height: 36px;
+      background: var(--pan-teal);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 18px;
+      color: var(--pan-navy);
+      letter-spacing: -1px;
+      flex-shrink: 0;
+    }
+    .header-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+    .header-subtitle {
+      font-size: 0.72rem;
+      color: var(--pan-teal);
+      font-weight: 400;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .header-badge {
+      background: rgba(0,192,232,0.15);
+      border: 1px solid var(--pan-teal);
+      color: var(--pan-teal);
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── File Picker Bar ───────────────────────────────────────── */
+    .file-bar {
+      background: var(--pan-navy-dark);
+      padding: 12px 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .file-picker-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .file-picker-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--pan-teal);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      white-space: nowrap;
+    }
+    .file-picker-btn {
+      position: relative;
+      overflow: hidden;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--pan-teal);
+      color: var(--pan-navy);
+      border: none;
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+    .file-picker-btn:hover { background: var(--pan-teal-dark); }
+    .file-picker-btn input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+    }
+    .file-name-display {
+      font-size: 0.78rem;
+      color: #a8c8e8;
+      max-width: 220px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .file-name-display.loaded { color: var(--pan-teal); font-weight: 600; }
+    .file-clear-btn {
+      background: none;
+      border: none;
+      color: #a8c8e8;
+      cursor: pointer;
+      font-size: 1rem;
+      line-height: 1;
+      padding: 2px 4px;
+      border-radius: 4px;
+      transition: color 0.15s;
+      display: none;
+    }
+    .file-clear-btn:hover { color: var(--pan-removed); }
+    .file-clear-btn.visible { display: inline-block; }
+    .file-bar-divider {
+      width: 1px;
+      height: 28px;
+      background: rgba(255,255,255,0.15);
+    }
+    .loading-indicator {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      color: var(--pan-teal);
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .loading-indicator.active { display: flex; }
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(0,192,232,0.3);
+      border-top-color: var(--pan-teal);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Tab Navigation ────────────────────────────────────────── */
+    .tab-bar {
+      background: var(--pan-white);
+      border-bottom: 2px solid var(--pan-border);
+      padding: 0 2rem;
+      display: flex;
+      align-items: flex-end;
+      gap: 0;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      padding: 14px 28px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--pan-muted);
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+      letter-spacing: 0.02em;
+      margin-bottom: -2px;
+    }
+    .tab-btn:hover { color: var(--pan-navy); }
+    .tab-btn.active {
+      color: var(--pan-teal-dark);
+      border-bottom-color: var(--pan-teal);
+    }
+    .tab-pill {
+      display: inline-block;
+      background: var(--pan-bg);
+      color: var(--pan-muted);
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 10px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+    .tab-btn.active .tab-pill {
+      background: var(--pan-teal);
+      color: var(--pan-navy);
+    }
+
+    /* ── Main Content ──────────────────────────────────────────── */
+    main {
+      padding: 1.5rem 2rem 3rem;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    /* ── Summary Stats Bar ─────────────────────────────────────── */
+    .summary-bar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .summary-card {
+      background: var(--pan-card);
+      border: 1px solid var(--pan-border);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      box-shadow: var(--shadow);
+    }
+    .summary-card-header {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--pan-muted);
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .summary-file-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .dot-a { background: var(--pan-teal); }
+    .dot-b { background: #f59e0b; }
+    .summary-stats {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .summary-stat {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .summary-stat-value {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--pan-navy);
+      line-height: 1;
+    }
+    .summary-stat-label {
+      font-size: 0.7rem;
+      color: var(--pan-muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .summary-stat-value.util-high { color: var(--pan-removed); }
+    .summary-stat-value.util-med  { color: #d97706; }
+    .summary-stat-value.util-low  { color: var(--pan-new); }
+    .summary-placeholder {
+      color: var(--pan-muted);
+      font-size: 0.82rem;
+      font-style: italic;
+    }
+
+    /* ── Controls Bar ──────────────────────────────────────────── */
+    .controls-bar {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+    }
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .control-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--pan-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+    }
+    .control-select {
+      background: var(--pan-white);
+      border: 1px solid var(--pan-border);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 0.82rem;
+      color: var(--pan-text);
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .control-select:focus { border-color: var(--pan-teal); }
+    .sort-dir-btn {
+      background: var(--pan-white);
+      border: 1px solid var(--pan-border);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      color: var(--pan-navy);
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .sort-dir-btn:hover { background: var(--pan-bg); border-color: var(--pan-teal); }
+    .results-count {
+      margin-left: auto;
+      font-size: 0.78rem;
+      color: var(--pan-muted);
+      font-weight: 500;
+    }
+
+    /* ── Chart Grid ────────────────────────────────────────────── */
+    .chart-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+    }
+    @media (max-width: 1399px) { .chart-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 1023px) { .chart-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 639px)  { .chart-grid { grid-template-columns: 1fr; } }
+
+    /* ── Tenant Card ───────────────────────────────────────────── */
+    .tenant-card {
+      background: var(--pan-card);
+      border: 1px solid var(--pan-border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 1rem;
+      position: relative;
+      transition: box-shadow 0.2s, transform 0.2s;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .tenant-card:hover {
+      box-shadow: var(--shadow-hover);
+      transform: translateY(-2px);
+    }
+
+    /* Status badge */
+    .status-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 0.62rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 3px 8px;
+      border-radius: 20px;
+    }
+    .badge-new      { background: #dcfce7; color: var(--pan-new); border: 1px solid #86efac; }
+    .badge-removed  { background: #fee2e2; color: var(--pan-removed); border: 1px solid #fca5a5; }
+
+    /* Card header */
+    .card-header { padding-right: 60px; }
+    .card-tenant-name {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--pan-navy);
+      line-height: 1.3;
+      word-break: break-word;
+    }
+    .card-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 4px;
+      flex-wrap: wrap;
+    }
+    .card-region-pill {
+      background: var(--pan-bg);
+      color: var(--pan-muted);
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .card-id {
+      font-size: 0.65rem;
+      color: var(--pan-muted);
+      font-family: 'Consolas', monospace;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 120px;
+    }
+
+    /* Pie comparison row */
+    .pie-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: flex-start;
+    }
+    .pie-slot {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      min-width: 0;
+    }
+    .pie-slot-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--pan-muted);
+    }
+    .pie-slot-label.label-a { color: var(--pan-teal-dark); }
+    .pie-slot-label.label-b { color: #b45309; }
+    .pie-canvas-wrap {
+      width: 100%;
+      aspect-ratio: 1;
+      position: relative;
+    }
+    .pie-canvas-wrap canvas {
+      width: 100% !important;
+      height: 100% !important;
+    }
+    .pie-placeholder {
+      width: 100%;
+      aspect-ratio: 1;
+      background: var(--pan-bg);
+      border: 2px dashed var(--pan-border);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--pan-muted);
+      font-size: 1.2rem;
+    }
+    .pie-util-pct {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--pan-navy);
+    }
+    .pie-util-pct.util-high { color: var(--pan-removed); }
+    .pie-util-pct.util-med  { color: #d97706; }
+    .pie-util-pct.util-low  { color: var(--pan-new); }
+    .pie-util-pct.util-na   { color: var(--pan-muted); font-weight: 400; }
+
+    /* Delta badge */
+    .delta-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+    }
+    .delta-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+    .delta-up   { background: #fee2e2; color: var(--pan-removed); }
+    .delta-down { background: #dcfce7; color: var(--pan-new); }
+    .delta-flat { background: var(--pan-bg); color: var(--pan-muted); }
+
+    /* Card footer — assigned/consumed values */
+    .card-values {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      border-top: 1px solid var(--pan-border);
+      padding-top: 0.6rem;
+    }
+    .card-value-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.72rem;
+    }
+    .card-value-key { color: var(--pan-muted); }
+    .card-value-val { font-weight: 600; color: var(--pan-text); }
+
+    /* ── Empty State ───────────────────────────────────────────── */
+    .empty-state {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 4rem 2rem;
+      text-align: center;
+      gap: 1rem;
+    }
+    .empty-icon {
+      font-size: 3rem;
+      opacity: 0.4;
+    }
+    .empty-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--pan-navy);
+    }
+    .empty-desc {
+      font-size: 0.85rem;
+      color: var(--pan-muted);
+      max-width: 380px;
+      line-height: 1.6;
+    }
+
+    /* ── Legend ────────────────────────────────────────────────── */
+    .legend-bar {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.75rem;
+      color: var(--pan-muted);
+      font-weight: 500;
+    }
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ── Tab Panels ────────────────────────────────────────────── */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── Responsive tweaks ─────────────────────────────────────── */
+    @media (max-width: 768px) {
+      header { padding: 0 1rem; }
+      .file-bar { padding: 10px 1rem; gap: 0.75rem; }
+      .tab-bar { padding: 0 1rem; }
+      main { padding: 1rem 1rem 2rem; }
+      .summary-bar { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ──────────────────────────────────────────────────── -->
+<header>
+  <div class="header-brand">
+    <div class="header-logo">PA</div>
+    <div>
+      <div class="header-title">Prisma CSE License Dashboard</div>
+      <div class="header-subtitle">SASE Bandwidth &amp; Mobile User Utilization</div>
+    </div>
+  </div>
+  <div class="header-badge">CSE INTERNAL</div>
+</header>
+
+<!-- ── File Picker Bar ─────────────────────────────────────────── -->
+<div class="file-bar">
+  <div class="file-picker-group">
+    <span class="file-picker-label">Snapshot A</span>
+    <label class="file-picker-btn">
+      📂 Load File A
+      <input type="file" id="fileInputA" accept=".xlsx" />
+    </label>
+    <span class="file-name-display" id="fileNameA">No file loaded</span>
+    <button class="file-clear-btn" id="fileClearA" title="Clear File A">✕</button>
+  </div>
+
+  <div class="file-bar-divider"></div>
+
+  <div class="file-picker-group">
+    <span class="file-picker-label">Snapshot B <span style="opacity:0.6;font-weight:400">(optional)</span></span>
+    <label class="file-picker-btn" style="background:#f59e0b;color:#1a1a1a;">
+      📂 Load File B
+      <input type="file" id="fileInputB" accept=".xlsx" />
+    </label>
+    <span class="file-name-display" id="fileNameB">No file loaded</span>
+    <button class="file-clear-btn" id="fileClearB" title="Clear File B">✕</button>
+  </div>
+
+  <div class="loading-indicator" id="loadingIndicator">
+    <div class="spinner"></div>
+    Parsing…
+  </div>
+</div>
+
+<!-- ── Tab Navigation ──────────────────────────────────────────── -->
+<div class="tab-bar">
+  <button class="tab-btn active" data-tab="rn" onclick="switchTab('rn')">
+    Remote Network (RN) <span class="tab-pill" id="rnCount">0</span>
+  </button>
+  <button class="tab-btn" data-tab="mu" onclick="switchTab('mu')">
+    Mobile User (MU) <span class="tab-pill" id="muCount">0</span>
+  </button>
+</div>
+
+<!-- ── Main Content ────────────────────────────────────────────── -->
+<main>
+
+  <!-- RN Tab Panel -->
+  <div class="tab-panel active" id="panel-rn">
+    <!-- Summary Bar -->
+    <div class="summary-bar" id="summaryRN">
+      <div class="summary-card">
+        <div class="summary-card-header">
+          <span class="summary-file-dot dot-a"></span>
+          Snapshot A — Remote Network
+        </div>
+        <div id="summaryRN-A"><span class="summary-placeholder">Load Snapshot A to see summary</span></div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-header">
+          <span class="summary-file-dot dot-b"></span>
+          Snapshot B — Remote Network
+        </div>
+        <div id="summaryRN-B"><span class="summary-placeholder">Load Snapshot B to see summary</span></div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls-bar">
+      <div class="control-group">
+        <span class="control-label">Region</span>
+        <select class="control-select" id="regionFilterRN" onchange="renderGrid('rn')">
+          <option value="">All Regions</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <span class="control-label">Sort by</span>
+        <select class="control-select" id="sortFieldRN" onchange="renderGrid('rn')">
+          <option value="util">Utilization %</option>
+          <option value="name">Tenant Name</option>
+          <option value="assigned">Assigned</option>
+        </select>
+        <button class="sort-dir-btn" id="sortDirRN" onclick="toggleSortDir('rn')" title="Toggle sort direction">↓</button>
+      </div>
+      <span class="results-count" id="resultsCountRN"></span>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend-bar">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--pan-consumed)"></div> Consumed</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--pan-remaining)"></div> Remaining</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--pan-new)"></div> NEW tenant</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--pan-removed)"></div> REMOVED tenant</div>
+    </div>
+
+    <!-- Chart Grid -->
+    <div class="chart-grid" id="gridRN">
+      <div class="empty-state">
+        <div class="empty-icon">📊</div>
+        <div class="empty-title">No data loaded</div>
+        <div class="empty-desc">Load a Snapshot A file above to view Remote Network bandwidth utilization charts.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MU Tab Panel -->
+  <div class="tab-panel" id="panel-mu">
+    <!-- Summary Bar -->
+    <div class="summary-bar" id="summaryMU">
+      <div class="summary-card">
+        <div class="summary-card-header">
+          <span class="summary-file-dot dot-a"></span>
+          Snapshot A — Mobile User
+        </div>
+        <div id="summaryMU-A"><span class="summary-placeholder">Load Snapshot A to see summary</span></div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-header">
+          <span class="summary-file-dot dot-b"></span>
+          Snapshot B — Mobile User
+        </div>
+        <div id="summaryMU-B"><span class="summary-placeholder">Load Snapshot B to see summary</span></div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls-bar">
+      <div class="control-group">
+        <span class="control-label">Region</span>
+        <select class="control-select" id="regionFilterMU" onchange="renderGrid('mu')">
+          <option value="">All Regions</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <span class="control-label">Sort by</span>
+        <select class="control-select" id="sortFieldMU" onchange="renderGrid('mu')">
+          <option value="util">Utilization %</option>
+          <option value="name">Tenant Name</option>
+          <option value="assigned">Assigned</option>
+        </select>
+        <button class="sort-dir-btn" id="sortDirMU" onclick="toggleSortDir('mu')" title="Toggle sort direction">↓</button>
+      </div>
+      <span class="results-count" id="resultsCountMU"></span>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend-bar">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--pan-consumed)"></div> Consumed</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--pan-remaining)"></div> Remaining</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--pan-new)"></div> NEW tenant</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--pan-removed)"></div> REMOVED tenant</div>
+    </div>
+
+    <!-- Chart Grid -->
+    <div class="chart-grid" id="gridMU">
+      <div class="empty-state">
+        <div class="empty-icon">👥</div>
+        <div class="empty-title">No data loaded</div>
+        <div class="empty-desc">Load a Snapshot A file above to view Mobile User license utilization charts.</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+/* ================================================================
+   PRISMA CSE DASHBOARD — JavaScript
+   Tasks 2–8: parsing, merging, filtering, sorting, charting
+   ================================================================ */
+
+// ── State ─────────────────────────────────────────────────────────
+const state = {
+  fileA: { rn: [], mu: [], name: null, date: null },
+  fileB: { rn: [], mu: [], name: null, date: null },
+  sortDir: { rn: 'desc', mu: 'desc' },
+  charts: {},   // canvasId -> Chart instance
+};
+
+// ── Column name aliases (handles slight variations in xlsx headers) ──
+const COL = {
+  name:     ['Tenant Name', 'tenant name', 'TenantName'],
+  id:       ['Tenant ID', 'tenant id', 'TenantID', 'TSG ID'],
+  region:   ['Region', 'region'],
+  assigned: ['Bandwidth Assigned', 'License Units Assigned', 'bandwidth assigned', 'license units assigned'],
+  consumed: ['Bandwidth Consumed', 'License Units Consumed', 'bandwidth consumed', 'license units consumed'],
+  util:     ['Utilization %', 'utilization %', 'Utilization%'],
+};
+
+function findCol(row, aliases) {
+  for (const a of aliases) {
+    if (row[a] !== undefined) return row[a];
+  }
+  return null;
+}
+
+// ── Bandwidth string → Mbps float ─────────────────────────────────
+function parseBandwidth(val) {
+  if (val === null || val === undefined || val === '') return 0;
+  if (typeof val === 'number') return val;
+  const s = String(val).trim();
+  const gbps = s.match(/^([\d.]+)\s*Gbps$/i);
+  if (gbps) return parseFloat(gbps[1]) * 1000;
+  const mbps = s.match(/^([\d.]+)\s*Mbps$/i);
+  if (mbps) return parseFloat(mbps[1]);
+  const num = parseFloat(s);
+  return isNaN(num) ? 0 : num;
+}
+
+function fmtBandwidth(mbps) {
+  if (mbps >= 1000) return (mbps / 1000).toFixed(1) + ' Gbps';
+  return mbps.toFixed(1) + ' Mbps';
+}
+
+function fmtValue(val, isBandwidth) {
+  if (val === null || val === undefined) return '—';
+  if (isBandwidth) return fmtBandwidth(typeof val === 'number' ? val : parseBandwidth(val));
+  return Number(val).toLocaleString();
+}
+
+// ── Parse a sheet's rows into normalised objects ───────────────────
+function parseSheet(rows, isBandwidth) {
+  return rows.map(row => {
+    const assignedRaw = findCol(row, COL.assigned);
+    const consumedRaw = findCol(row, COL.consumed);
+    const assigned = isBandwidth ? parseBandwidth(assignedRaw) : (parseFloat(assignedRaw) || 0);
+    const consumed = isBandwidth ? parseBandwidth(consumedRaw) : (parseFloat(consumedRaw) || 0);
+    const utilRaw  = findCol(row, COL.util);
+    const util     = utilRaw !== null && utilRaw !== '' ? parseFloat(utilRaw) : (assigned > 0 ? +(consumed / assigned * 100).toFixed(1) : 0);
+    return {
+      name:     String(findCol(row, COL.name)   || '').trim(),
+      id:       String(findCol(row, COL.id)      || '').trim(),
+      region:   String(findCol(row, COL.region)  || '').trim().toLowerCase(),
+      assigned,
+      consumed,
+      util:     isNaN(util) ? 0 : util,
+    };
+  }).filter(r => r.name && r.assigned > 0);
+}
+
+// ── Read .xlsx file via SheetJS ────────────────────────────────────
+function readXlsx(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+        const getSheet = name => {
+          const ws = wb.Sheets[name];
+          if (!ws) return [];
+          return XLSX.utils.sheet_to_json(ws, { defval: '' });
+        };
+        resolve({
+          rn: getSheet('RN'),
+          mu: getSheet('MU'),
+        });
+      } catch (err) { reject(err); }
+    };
+    reader.onerror = reject;
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+// ── Extract date from filename ─────────────────────────────────────
+function extractDate(filename) {
+  const m = filename.match(/(\d{4}-\d{2}-\d{2})/);
+  return m ? m[1] : filename.replace(/\.xlsx$/i, '');
+}
+
+// ── File load handler ──────────────────────────────────────────────
+async function handleFile(slot, file) {
+  if (!file) return;
+  const indicator = document.getElementById('loadingIndicator');
+  indicator.classList.add('active');
+
+  try {
+    const raw = await readXlsx(file);
+    state[slot].rn   = parseSheet(raw.rn, true);   // RN = bandwidth
+    state[slot].mu   = parseSheet(raw.mu, false);  // MU = user counts
+    state[slot].name = file.name;
+    state[slot].date = extractDate(file.name);
+
+    const nameEl  = document.getElementById(slot === 'fileA' ? 'fileNameA' : 'fileNameB');
+    const clearEl = document.getElementById(slot === 'fileA' ? 'fileClearA' : 'fileClearB');
+    nameEl.textContent = file.name;
+    nameEl.classList.add('loaded');
+    clearEl.classList.add('visible');
+  } catch (err) {
+    alert('Error parsing file: ' + err.message);
+  } finally {
+    indicator.classList.remove('active');
+  }
+
+  refreshAll();
+}
+
+// ── Clear a file slot ──────────────────────────────────────────────
+function clearFile(slot) {
+  state[slot] = { rn: [], mu: [], name: null, date: null };
+  const isA = slot === 'fileA';
+  const nameEl  = document.getElementById(isA ? 'fileNameA' : 'fileNameB');
+  const clearEl = document.getElementById(isA ? 'fileClearA' : 'fileClearB');
+  const inputEl = document.getElementById(isA ? 'fileInputA' : 'fileInputB');
+  nameEl.textContent = 'No file loaded';
+  nameEl.classList.remove('loaded');
+  clearEl.classList.remove('visible');
+  inputEl.value = '';
+  refreshAll();
+}
+
+// ── Wire up file inputs ────────────────────────────────────────────
+document.getElementById('fileInputA').addEventListener('change', e => handleFile('fileA', e.target.files[0]));
+document.getElementById('fileInputB').addEventListener('change', e => handleFile('fileB', e.target.files[0]));
+document.getElementById('fileClearA').addEventListener('click', () => clearFile('fileA'));
+document.getElementById('fileClearB').addEventListener('click', () => clearFile('fileB'));
+
+// ── Tab switching ──────────────────────────────────────────────────
+let activeTab = 'rn';
+function switchTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + tab));
+}
+
+// ── Sort direction toggle ──────────────────────────────────────────
+function toggleSortDir(tab) {
+  state.sortDir[tab] = state.sortDir[tab] === 'desc' ? 'asc' : 'desc';
+  document.getElementById('sortDir' + tab.toUpperCase()).textContent = state.sortDir[tab] === 'desc' ? '↓' : '↑';
+  renderGrid(tab);
+}
+
+// ── Data merge layer ───────────────────────────────────────────────
+// Returns unified list of tenants keyed by (id || name), with fileA/fileB data and status badge.
+function mergeData(tab) {
+  const isBandwidth = tab === 'rn';
+  const rowsA = state.fileA[tab];
+  const rowsB = state.fileB[tab];
+
+  const mapA = new Map();
+  const mapB = new Map();
+
+  const key = r => (r.id && r.id !== '' ? r.id : r.name);
+
+  rowsA.forEach(r => mapA.set(key(r), r));
+  rowsB.forEach(r => mapB.set(key(r), r));
+
+  const allKeys = new Set([...mapA.keys(), ...mapB.keys()]);
+  const merged = [];
+
+  allKeys.forEach(k => {
+    const a = mapA.get(k) || null;
+    const b = mapB.get(k) || null;
+    const base = a || b;
+    let status = 'both';
+    if (!a && b)  status = 'new';
+    if (a && !b)  status = 'removed';
+
+    const deltaUtil = (a && b) ? +(b.util - a.util).toFixed(1) : null;
+
+    merged.push({
+      key,
+      name:      base.name,
+      id:        base.id,
+      region:    base.region,
+      isBandwidth,
+      fileA:     a ? { assigned: a.assigned, consumed: a.consumed, util: a.util } : null,
+      fileB:     b ? { assigned: b.assigned, consumed: b.consumed, util: b.util } : null,
+      status,
+      deltaUtil,
+      // For sorting — prefer fileB util if available, else fileA
+      sortUtil:  b ? b.util : (a ? a.util : 0),
+      sortName:  base.name.toLowerCase(),
+      sortAssigned: b ? b.assigned : (a ? a.assigned : 0),
+    });
+  });
+
+  return merged;
+}
+
+// ── Populate region filter ─────────────────────────────────────────
+function populateRegionFilter(tab, data) {
+  const sel = document.getElementById('regionFilter' + tab.toUpperCase());
+  const current = sel.value;
+  const regions = [...new Set(data.map(d => d.region).filter(Boolean))].sort();
+  sel.innerHTML = '<option value="">All Regions</option>' +
+    regions.map(r => `<option value="${r}"${r === current ? ' selected' : ''}>${r.toUpperCase()}</option>`).join('');
+}
+
+// ── Util colour class ──────────────────────────────────────────────
+function utilClass(pct) {
+  if (pct === null || pct === undefined) return 'util-na';
+  if (pct >= 80) return 'util-high';
+  if (pct >= 50) return 'util-med';
+  return 'util-low';
+}
+
+// ── Destroy existing Chart.js instance for a canvas ───────────────
+function destroyChart(id) {
+  if (state.charts[id]) {
+    state.charts[id].destroy();
+    delete state.charts[id];
+  }
+}
+
+// ── Create a pie chart ─────────────────────────────────────────────
+function createPie(canvasId, consumed, assigned, isBandwidth, label) {
+  destroyChart(canvasId);
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const remaining = Math.max(0, assigned - consumed);
+  const ctx = canvas.getContext('2d');
+
+  const fmtTip = v => isBandwidth ? fmtBandwidth(v) : Number(v).toLocaleString();
+
+  state.charts[canvasId] = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Consumed', 'Remaining'],
+      datasets: [{
+        data: assigned === 0 ? [1] : [consumed, remaining],
+        backgroundColor: assigned === 0
+          ? ['#e2e8f0']
+          : ['#00C0E8', '#1F4E79'],
+        borderWidth: 0,
+        hoverOffset: 4,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      cutout: '60%',
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              if (assigned === 0) return 'No data';
+              const v = ctx.raw;
+              const pct = assigned > 0 ? (v / assigned * 100).toFixed(1) : 0;
+              return `${ctx.label}: ${fmtTip(v)} (${pct}%)`;
+            },
+          },
+        },
+      },
+      animation: { duration: 400 },
+    },
+  });
+}
+
+// ── Render a single tenant card ────────────────────────────────────
+function renderCard(tenant, twoFiles) {
+  const { name, id, region, fileA, fileB, status, deltaUtil, isBandwidth } = tenant;
+  const cardId = 'card-' + btoa(encodeURIComponent(name + id)).replace(/[^a-zA-Z0-9]/g, '').slice(0, 20);
+
+  const badgeHtml = status === 'new'
+    ? '<span class="status-badge badge-new">NEW</span>'
+    : status === 'removed'
+    ? '<span class="status-badge badge-removed">REMOVED</span>'
+    : '';
+
+  const fmtUtil = (data) => {
+    if (!data) return '<span class="pie-util-pct util-na">—</span>';
+    const cls = utilClass(data.util);
+    return `<span class="pie-util-pct ${cls}">${data.util.toFixed(1)}%</span>`;
+  };
+
+  const deltaHtml = (() => {
+    if (deltaUtil === null || !twoFiles) return '';
+    const cls = deltaUtil > 0 ? 'delta-up' : deltaUtil < 0 ? 'delta-down' : 'delta-flat';
+    const sign = deltaUtil > 0 ? '+' : '';
+    return `<div class="delta-row"><span class="delta-badge ${cls}">${sign}${deltaUtil.toFixed(1)}% vs A</span></div>`;
+  })();
+
+  const canvasIdA = cardId + '-A';
+  const canvasIdB = cardId + '-B';
+
+  let pieRowHtml;
+  if (!twoFiles) {
+    // Single file — one centered pie
+    const data = fileA || fileB;
+    pieRowHtml = `
+      <div class="pie-row" style="justify-content:center;">
+        <div class="pie-slot" style="max-width:140px;">
+          <div class="pie-canvas-wrap"><canvas id="${canvasIdA}" aria-label="Utilization pie chart for ${name}"></canvas></div>
+          ${fmtUtil(data)}
+        </div>
+      </div>`;
+  } else {
+    // Two files — side by side
+    const pieA = fileA
+      ? `<div class="pie-canvas-wrap"><canvas id="${canvasIdA}" aria-label="Snapshot A utilization for ${name}"></canvas></div>${fmtUtil(fileA)}`
+      : `<div class="pie-placeholder" aria-label="No Snapshot A data">—</div><span class="pie-util-pct util-na">—</span>`;
+    const pieB = fileB
+      ? `<div class="pie-canvas-wrap"><canvas id="${canvasIdB}" aria-label="Snapshot B utilization for ${name}"></canvas></div>${fmtUtil(fileB)}`
+      : `<div class="pie-placeholder" aria-label="No Snapshot B data">—</div><span class="pie-util-pct util-na">—</span>`;
+
+    pieRowHtml = `
+      <div class="pie-row">
+        <div class="pie-slot">
+          <span class="pie-slot-label label-a">Snap A</span>
+          ${pieA}
+        </div>
+        <div class="pie-slot">
+          <span class="pie-slot-label label-b">Snap B</span>
+          ${pieB}
+        </div>
+      </div>`;
+  }
+
+  // Values footer
+  const valuesHtml = (() => {
+    const rows = [];
+    if (fileA) {
+      rows.push(`<div class="card-value-row"><span class="card-value-key">A Assigned</span><span class="card-value-val">${fmtValue(fileA.assigned, isBandwidth)}</span></div>`);
+      rows.push(`<div class="card-value-row"><span class="card-value-key">A Consumed</span><span class="card-value-val">${fmtValue(fileA.consumed, isBandwidth)}</span></div>`);
+    }
+    if (fileB) {
+      rows.push(`<div class="card-value-row"><span class="card-value-key">B Assigned</span><span class="card-value-val">${fmtValue(fileB.assigned, isBandwidth)}</span></div>`);
+      rows.push(`<div class="card-value-row"><span class="card-value-key">B Consumed</span><span class="card-value-val">${fmtValue(fileB.consumed, isBandwidth)}</span></div>`);
+    }
+    return rows.join('');
+  })();
+
+  const html = `
+    <div class="tenant-card" id="${cardId}">
+      ${badgeHtml}
+      <div class="card-header">
+        <div class="card-tenant-name">${escHtml(name)}</div>
+        <div class="card-meta">
+          ${region ? `<span class="card-region-pill">${escHtml(region.toUpperCase())}</span>` : ''}
+          ${id ? `<span class="card-id" title="${escHtml(id)}">${escHtml(id)}</span>` : ''}
+        </div>
+      </div>
+      ${pieRowHtml}
+      ${deltaHtml}
+      <div class="card-values">${valuesHtml}</div>
+    </div>`;
+
+  return { html, canvasIdA, canvasIdB, fileA, fileB, isBandwidth, name };
+}
+
+// ── Render the full grid for a tab ────────────────────────────────
+function renderGrid(tab) {
+  const grid = document.getElementById('grid' + tab.toUpperCase());
+  const hasA = state.fileA[tab].length > 0;
+  const hasB = state.fileB[tab].length > 0;
+
+  if (!hasA && !hasB) {
+    const icon  = tab === 'rn' ? '📊' : '👥';
+    const label = tab === 'rn' ? 'Remote Network bandwidth' : 'Mobile User license';
+    grid.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">${icon}</div>
+      <div class="empty-title">No data loaded</div>
+      <div class="empty-desc">Load a Snapshot A file above to view ${label} utilization charts.</div>
+    </div>`;
+    return;
+  }
+
+  // Destroy all existing charts for this tab to avoid memory leaks
+  Object.keys(state.charts).forEach(id => {
+    if (id.includes('-A') || id.includes('-B')) {
+      // Only destroy charts belonging to this tab's grid
+      const el = document.getElementById(id);
+      if (el && grid.contains(el)) destroyChart(id);
+    }
+  });
+
+  let data = mergeData(tab);
+  populateRegionFilter(tab, data);
+
+  // Apply region filter
+  const regionSel = document.getElementById('regionFilter' + tab.toUpperCase());
+  const regionVal = regionSel.value;
+  if (regionVal) data = data.filter(d => d.region === regionVal);
+
+  // Apply sort
+  const sortField = document.getElementById('sortField' + tab.toUpperCase()).value;
+  const dir = state.sortDir[tab] === 'desc' ? -1 : 1;
+  data.sort((a, b) => {
+    if (sortField === 'name')     return dir * a.sortName.localeCompare(b.sortName);
+    if (sortField === 'assigned') return dir * (a.sortAssigned - b.sortAssigned);
+    return dir * (a.sortUtil - b.sortUtil);
+  });
+
+  // Update count pills
+  document.getElementById(tab + 'Count').textContent = data.length;
+  document.getElementById('resultsCount' + tab.toUpperCase()).textContent =
+    data.length + ' tenant' + (data.length !== 1 ? 's' : '');
+
+  const twoFiles = hasA && hasB;
+  const cards = data.map(t => renderCard(t, twoFiles));
+
+  grid.innerHTML = cards.map(c => c.html).join('');
+
+  // Create Chart.js instances after DOM is updated
+  requestAnimationFrame(() => {
+    cards.forEach(c => {
+      if (c.fileA) createPie(c.canvasIdA, c.fileA.consumed, c.fileA.assigned, c.isBandwidth, 'A');
+      if (twoFiles && c.fileB) createPie(c.canvasIdB, c.fileB.consumed, c.fileB.assigned, c.isBandwidth, 'B');
+    });
+  });
+}
+
+// ── Render summary stats bar ───────────────────────────────────────
+function renderSummary(tab) {
+  const isBandwidth = tab === 'rn';
+  ['A', 'B'].forEach(slot => {
+    const key = 'file' + slot;
+    const rows = state[slot === 'A' ? 'fileA' : 'fileB'][tab];
+    const el = document.getElementById('summary' + tab.toUpperCase() + '-' + slot);
+    if (!rows || rows.length === 0) {
+      el.innerHTML = `<span class="summary-placeholder">Load Snapshot ${slot} to see summary</span>`;
+      return;
+    }
+    const totalAssigned = rows.reduce((s, r) => s + r.assigned, 0);
+    const totalConsumed = rows.reduce((s, r) => s + r.consumed, 0);
+    const overallUtil   = totalAssigned > 0 ? +(totalConsumed / totalAssigned * 100).toFixed(1) : 0;
+    const cls = utilClass(overallUtil);
+    const fmtA = v => isBandwidth ? fmtBandwidth(v) : Number(Math.round(v)).toLocaleString();
+    const dateLabel = state[slot === 'A' ? 'fileA' : 'fileB'].date || '';
+
+    el.innerHTML = `
+      <div class="summary-stats">
+        <div class="summary-stat">
+          <span class="summary-stat-value">${fmtA(totalAssigned)}</span>
+          <span class="summary-stat-label">Total Assigned</span>
+        </div>
+        <div class="summary-stat">
+          <span class="summary-stat-value">${fmtA(totalConsumed)}</span>
+          <span class="summary-stat-label">Total Consumed</span>
+        </div>
+        <div class="summary-stat">
+          <span class="summary-stat-value ${cls}">${overallUtil}%</span>
+          <span class="summary-stat-label">Overall Util</span>
+        </div>
+        <div class="summary-stat">
+          <span class="summary-stat-value" style="font-size:0.95rem;">${rows.length}</span>
+          <span class="summary-stat-label">Tenants</span>
+        </div>
+        ${dateLabel ? `<div class="summary-stat"><span class="summary-stat-value" style="font-size:0.85rem;color:var(--pan-muted)">${dateLabel}</span><span class="summary-stat-label">Report Date</span></div>` : ''}
+      </div>`;
+  });
+}
+
+// ── Refresh everything ─────────────────────────────────────────────
+function refreshAll() {
+  renderSummary('rn');
+  renderSummary('mu');
+  renderGrid('rn');
+  renderGrid('mu');
+}
+
+// ── HTML escape helper ─────────────────────────────────────────────
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// ── Initial render (empty state) ───────────────────────────────────
+refreshAll();
+</script>
+</body>
+</html>
