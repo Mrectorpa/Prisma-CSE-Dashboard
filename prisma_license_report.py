@@ -325,7 +325,7 @@ def fetch_mu_counts(
 # RN sheet: bandwidth columns use human-readable Mbps/Gbps labels
 RN_COLUMNS = [
     "Tenant Name",
-    "Tenant ID",
+    "TSG ID",
     "Region",
     "Bandwidth Assigned",
     "Bandwidth Consumed",
@@ -335,10 +335,10 @@ RN_COLUMNS = [
 # MU sheet: user-count columns (no unit conversion needed)
 MU_COLUMNS = [
     "Tenant Name",
-    "Tenant ID",
+    "TSG ID",
     "Region",
-    "License Units Assigned",
-    "License Units Consumed",
+    "MU Licenses Assigned",
+    "MU Licenses usage",
     "Utilization %",
 ]
 
