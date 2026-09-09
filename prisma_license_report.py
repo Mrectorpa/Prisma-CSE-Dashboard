@@ -15,8 +15,13 @@ APIs used (pan.dev):
 
   License utilization  (LicenseUtilization schema — MU & RN, last 30 days):
     GET  https://api.sase.paloaltonetworks.com/mt/monitor/v1/agg/custom/license/utilization
-         ?agg_by=tenant&product_type=MU,RN&time_period=30d
+         ?agg_by=tenant&product_type=<MU|RN>&time_period=30d
          Header: X-PANW-Region: <region>
+    Note: product_type is queried separately per type (MU, then RN) rather
+          than as a combined "MU,RN" value — some regions' backend
+          aggregation returns a 5xx "Unexpected server error" when both
+          product types are requested together for tenants with real data.
+          Requests are also retried with exponential backoff on 5xx errors.
 
   MU user count  (Insights 3.0 — connected_entity_count):
     POST https://api.sase.paloaltonetworks.com/insights/v3.0/resource/query/users/agent/connected_entity_count
@@ -39,6 +44,7 @@ Key schema facts (OpenAPI spec):
 import sys
 import getpass
 import datetime
+import time
 import requests
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment
@@ -156,9 +162,49 @@ def fetch_tenant_hierarchy(token: str) -> tuple[dict, dict]:
 # ---------------------------------------------------------------------------
 # STEP 3 — Fetch license utilization (assigned + consumed, last 30 days)
 # ---------------------------------------------------------------------------
-def fetch_license_utilization_for_region(token: str, region: str) -> list[dict]:
+
+# Product types are queried individually (rather than as a combined
+# "MU,RN" param) because some regions' backend aggregation fails with a
+# 5xx "Unexpected server error" when both product types are requested
+# together for tenants that actually have data. Splitting the calls lets
+# one product type succeed even if the other keeps failing.
+PRODUCT_TYPES = ["MU", "RN"]
+
+# Retry/backoff settings for transient 5xx errors from the Insights Service.
+RETRYABLE_STATUS_CODES = {500, 502, 503, 504}
+MAX_RETRIES  = 3       # total attempts = 1 initial + (MAX_RETRIES - 1) retries
+BACKOFF_BASE = 2.0     # seconds; doubles each retry (2s, 4s, 8s, ...)
+
+
+def _get_with_backoff(url: str, headers: dict, params: dict, timeout: int):
     """
-    Calls /mt/monitor/v1/agg/custom/license/utilization for a single region.
+    Performs a GET request, retrying on transient 5xx responses with
+    exponential backoff. Returns the final `requests.Response` object
+    (which may still carry an error status if all retries were
+    exhausted). Non-retryable errors (4xx, network errors) are raised
+    immediately/propagated on the first attempt via raise_for_status()
+    or the underlying exception.
+    """
+    attempt = 1
+    while True:
+        resp = requests.get(url, headers=headers, params=params, timeout=timeout)
+        if resp.status_code in RETRYABLE_STATUS_CODES and attempt < MAX_RETRIES:
+            wait = BACKOFF_BASE * (2 ** (attempt - 1))
+            print(f"      (HTTP {resp.status_code} — retrying in {wait:.0f}s, "
+                  f"attempt {attempt + 1}/{MAX_RETRIES})")
+            time.sleep(wait)
+            attempt += 1
+            continue
+        return resp
+
+
+def fetch_license_utilization_for_region_and_type(
+    token: str, region: str, product_type: str
+) -> list[dict]:
+    """
+    Calls /mt/monitor/v1/agg/custom/license/utilization for a single
+    region AND a single product type ("MU" or "RN"), retrying transient
+    5xx failures with backoff before giving up.
 
     Each LicenseUtilization record contains:
       sub_tenant_id       : CDL Tenant Id  (join key to hierarchy)
@@ -174,19 +220,25 @@ def fetch_license_utilization_for_region(token: str, region: str) -> list[dict]:
     }
     params = {
         "agg_by":       "tenant",
-        "product_type": "MU,RN",
+        "product_type": product_type,
         "time_period":  "30d",
     }
 
     try:
-        resp = requests.get(UTILIZATION_URL, headers=headers, params=params, timeout=30)
+        resp = _get_with_backoff(UTILIZATION_URL, headers, params, timeout=30)
         resp.raise_for_status()
     except requests.exceptions.HTTPError as e:
-        # 400/404 is expected for regions where this tenant has no data
-        print(f"    [{region}] HTTP {e.response.status_code} — skipping.")
+        # 400/404 is expected for regions where this tenant has no data.
+        # 5xx means the API itself failed after exhausting retries — surface
+        # the response body so the actual cause (bad scope, malformed param,
+        # backend error, etc.) is visible.
+        detail = e.response.text.strip() if e.response is not None else ""
+        print(f"    [{region}/{product_type}] HTTP {e.response.status_code} — skipping.")
+        if detail:
+            print(f"      -> {detail[:500]}")
         return []
     except requests.exceptions.RequestException as e:
-        print(f"    [{region}] Network error: {e} — skipping.")
+        print(f"    [{region}/{product_type}] Network error: {e} — skipping.")
         return []
 
     body = resp.json()
@@ -205,6 +257,17 @@ def fetch_license_utilization_for_region(token: str, region: str) -> list[dict]:
     for rec in records:
         rec["_region"] = region
     return records
+
+
+def fetch_license_utilization_for_region(token: str, region: str) -> list[dict]:
+    """
+    Calls /mt/monitor/v1/agg/custom/license/utilization for a single
+    region, once per product type (MU, RN), and combines the results.
+    """
+    recs: list[dict] = []
+    for product_type in PRODUCT_TYPES:
+        recs.extend(fetch_license_utilization_for_region_and_type(token, region, product_type))
+    return recs
 
 
 def fetch_license_utilization_all_regions(token: str) -> list[dict]:
