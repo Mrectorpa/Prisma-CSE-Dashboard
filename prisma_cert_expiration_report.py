@@ -25,26 +25,48 @@ APIs used (pan.dev):
 Key schema facts:
   TenantHierarchy.id           = TSG Id
   TenantHierarchy.display_name = human-readable name
-  Certificate record (field names are defensively parsed since the exact
-  schema was not confirmed against a live response at authoring time):
-    name candidates:   "name"
-    expiry candidates: "expiry_date", "not_valid_after", "expiration_date",
-                        "valid_until"
-    Accepted date formats: "YYYY-MM-DD" or full ISO-8601 datetime
-    (e.g. "2025-01-31T00:00:00Z").
+  Certificate record (confirmed against a live response):
+    name field:   "name"
+    expiry field: "not_valid_after"  (CONFIRMED — this is the field the
+                  live API actually populates with the certificate's
+                  expiration date/time; other candidate names are kept
+                  as fallbacks only in case other cert types differ)
+    Accepted date formats:
+      - OpenSSL/X.509 ASN1_TIME (CONFIRMED live format):
+        "Sep  1 15:07:25 2035 GMT"  (note the double space before a
+        single-digit day, e.g. "Jun 29" vs "Sep  1")
+      - Full ISO-8601 datetime (fallback): "2025-01-31T00:00:00Z"
+      - Plain ISO date (fallback): "2025-01-31"
 
 Report scope (confirmed with requester):
   - ACTION ITEMS ONLY: certificates that are neither expired nor within
-    the 30-90 day expiring-soon window are omitted entirely.
+    the 30-90 or 91-365 day windows are omitted entirely.
   - Expired certificates are rendered BOLD RED.
   - Certificates expiring in 30-90 days (inclusive) are rendered BOLD
-    ORANGE.
+    YELLOW.
+  - Certificates expiring in 91-365 days (inclusive) are rendered BOLD
+    GREEN.
+  - Each column (Tenant Name, TSG ID, Certificate Name, Expiry Date,
+    Days Until Expiry, Status) has a live, case-insensitive substring
+    filter input beneath its header. Filters combine with AND across
+    columns and update the visible rows instantly via inline JavaScript
+    — no server or external JS library required, so the report remains
+    a single self-contained file.
+
+Logging:
+  Every run also writes a full console transcript (including any
+  "WARNING:" lines and raw skipped certificate records) to a companion
+  .log file: prisma_cert_expiration_report_<YYYY-MM-DD>.log. This makes
+  it possible to diagnose an empty/zero-result HTML report (e.g. a
+  certificate schema field-name mismatch or a per-tenant API error)
+  without needing to re-run the script with output captured manually.
 """
 
 import sys
 import getpass
 import datetime
 import time
+import traceback
 import html as html_lib
 import requests
 
@@ -72,13 +94,19 @@ MAX_RETRIES  = 3       # total attempts = 1 initial + (MAX_RETRIES - 1) retries
 BACKOFF_BASE = 2.0     # seconds; doubles each retry (2s, 4s, 8s, ...)
 
 # Expiring-soon window (inclusive), in days from today.
-EXPIRING_SOON_MIN_DAYS = 30
-EXPIRING_SOON_MAX_DAYS = 90
+EXPIRING_SOON_MIN_DAYS  = 30
+EXPIRING_SOON_MAX_DAYS  = 90
+# Expiring-later window: anything beyond the expiring-soon window, up to
+# and including this many days out, is flagged as a longer-horizon
+# heads-up (bold green) rather than an urgent action item.
+EXPIRING_LATER_MAX_DAYS = 365
 
-# Candidate field names — the exact schema wasn't confirmed against a live
-# response, so each candidate is tried in order until one is found.
+# Candidate field names. "not_valid_after" is CONFIRMED as the field the
+# live API populates with the certificate's expiration date/time, so it
+# is checked first. The remaining candidates are kept only as fallbacks
+# in case other certificate types/endpoints use a different field name.
 CERT_NAME_FIELDS   = ["name"]
-CERT_EXPIRY_FIELDS = ["expiry_date", "not_valid_after", "expiration_date", "valid_until"]
+CERT_EXPIRY_FIELDS = ["not_valid_after", "expiry_date", "expiration_date", "valid_until"]
 
 
 # ---------------------------------------------------------------------------
@@ -227,11 +255,20 @@ def fetch_certificates_for_tenant(token: str, tsg_id: str) -> list[dict]:
     return records
 
 
-def fetch_all_certificates(token: str, tenant_map: dict[str, str]) -> list[tuple[str, str, dict]]:
+def fetch_all_certificates(
+    token: str,
+    tenant_map: dict[str, str],
+    progress_callback=None,
+) -> list[tuple[str, str, dict]]:
     """
     Iterates over every child tenant in tenant_map, fetches its
     certificates, and returns a flat list of (tsg_id, tenant_name, cert_record)
     tuples across all tenants.
+
+    If provided, progress_callback(idx, total, tenant_name) is invoked
+    after each tenant is processed — used by callers (e.g. a web
+    frontend background job) to report live per-tenant progress without
+    needing to parse console output.
     """
     print(f"[3/4] Fetching '{CERT_FOLDER}' certificates for {len(tenant_map)} tenant(s)...")
     results: list[tuple[str, str, dict]] = []
@@ -243,6 +280,8 @@ def fetch_all_certificates(token: str, tenant_map: dict[str, str]) -> list[tuple
             print(f"    [{idx}/{total}] {tenant_name} (TSG:{tsg_id}) — {len(certs)} certificate(s)")
         for cert in certs:
             results.append((tsg_id, tenant_name, cert))
+        if progress_callback is not None:
+            progress_callback(idx, total, tenant_name)
 
     print(f"  Total certificates retrieved across all tenants: {len(results)}")
     return results
@@ -260,37 +299,65 @@ def _first_present(record: dict, candidates: list[str]) -> str | None:
     return None
 
 
+# Formats observed/expected from the certificates API. The live API
+# returns OpenSSL/X.509 ASN1_TIME-style strings (e.g.
+# "Sep  1 15:07:25 2035 GMT" — note the double space before single-digit
+# days), which is the format actually returned by
+# /sse/config/v1/certificates. ISO variants are kept as fallbacks in case
+# other tenants/cert types report differently.
+_DATE_STRPTIME_FORMATS = [
+    "%b %d %H:%M:%S %Y %Z",   # "Sep  1 15:07:25 2035 GMT"  (OpenSSL ASN1_TIME)
+    "%Y-%m-%d",               # "2025-01-31"
+]
+
+
 def _parse_date(raw_value: str) -> datetime.date | None:
     """
-    Parses a date string in either "YYYY-MM-DD" or full ISO-8601 datetime
-    form (e.g. "2025-01-31T00:00:00Z") into a date object. Returns None
-    if the value can't be parsed.
+    Parses a certificate expiry date string into a date object. Returns
+    None if the value can't be parsed by any known format.
+
+    Handles:
+      - OpenSSL/X.509 ASN1_TIME format: "Sep  1 15:07:25 2035 GMT"
+        (the format actually returned by /sse/config/v1/certificates)
+      - Full ISO-8601 datetime: "2025-01-31T00:00:00Z"
+      - Plain ISO date: "2025-01-31"
     """
     raw_value = raw_value.strip()
+
     # Full ISO datetime (optionally with trailing "Z")
     try:
         cleaned = raw_value.replace("Z", "+00:00")
         return datetime.datetime.fromisoformat(cleaned).date()
     except ValueError:
         pass
-    # Plain date
-    try:
-        return datetime.datetime.strptime(raw_value, "%Y-%m-%d").date()
-    except ValueError:
-        pass
+
+    # OpenSSL ASN1_TIME / plain ISO date formats
+    for fmt in _DATE_STRPTIME_FORMATS:
+        try:
+            return datetime.datetime.strptime(raw_value, fmt).date()
+        except ValueError:
+            continue
+
     return None
 
 
 def classify_expiry(expiry_date: datetime.date, today: datetime.date) -> str | None:
     """
-    Returns "expired", "expiring_soon", or None (not a reportable item)
-    based on days until expiry relative to today.
+    Returns "expired", "expiring_soon", "expiring_later", or None (not a
+    reportable item) based on days until expiry relative to today.
+
+      expired         : already past due (days_left < 0)
+      expiring_soon   : 30-90 days out (inclusive)
+      expiring_later  : 91-365 days out (inclusive)
+      None            : outside all reportable windows (>365 days out)
     """
     days_left = (expiry_date - today).days
     if days_left < 0:
         return "expired"
     if EXPIRING_SOON_MIN_DAYS <= days_left <= EXPIRING_SOON_MAX_DAYS:
         return "expiring_soon"
+    if EXPIRING_SOON_MAX_DAYS < days_left <= EXPIRING_LATER_MAX_DAYS:
+        return "expiring_later"
     return None
 
 
@@ -301,11 +368,12 @@ def build_report_rows(
     """
     Walks every (tsg_id, tenant_name, cert_record) entry, extracts the
     certificate name + expiry date, classifies it, and returns only the
-    rows that are "expired" or "expiring_soon" (action items).
+    rows that are "expired", "expiring_soon", or "expiring_later"
+    (action items / heads-up items).
 
     Each returned row dict has:
       tenant_name, tsg_id, cert_name, expiry_date (date), days_left (int),
-      status ("expired" | "expiring_soon")
+      status ("expired" | "expiring_soon" | "expiring_later")
 
     Records whose name or expiry date can't be parsed are logged and
     skipped rather than crashing the run.
@@ -346,8 +414,10 @@ def build_report_rows(
     if unparsed:
         print(f"  {unparsed} certificate record(s) skipped due to missing/unparseable fields.")
 
-    # Sort: expired first (most overdue first), then expiring-soon (soonest first)
-    rows.sort(key=lambda r: (r["status"] != "expired", r["days_left"]))
+    # Sort: expired first (most overdue first), then expiring-soon, then
+    # expiring-later (soonest expiry first within each group).
+    _STATUS_ORDER = {"expired": 0, "expiring_soon": 1, "expiring_later": 2}
+    rows.sort(key=lambda r: (_STATUS_ORDER.get(r["status"], 99), r["days_left"]))
     return rows
 
 
@@ -392,15 +462,48 @@ HTML_TEMPLATE_HEAD = """<!DOCTYPE html>
     position: sticky;
     top: 0;
   }}
+  th.filter-row {{
+    background: #ffffff;
+    padding: 0.4rem 0.6rem;
+    position: sticky;
+    top: 2.6rem;
+  }}
+  th.filter-row input {{
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.35rem 0.5rem;
+    font-size: 0.85rem;
+    border: 1px solid #c7ccd1;
+    border-radius: 4px;
+    color: #1f2d3d;
+    background: #ffffff;
+  }}
+  th.filter-row input:focus {{
+    outline: none;
+    border-color: #1F4E79;
+    box-shadow: 0 0 0 2px rgba(31,78,121,0.15);
+  }}
   tr:hover {{
     background: #f0f4f8;
+  }}
+  tr.filtered-out {{
+    display: none;
+  }}
+  .filter-summary {{
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+    color: #5a6b7b;
   }}
   .expired {{
     color: #c0392b;
     font-weight: bold;
   }}
   .expiring-soon {{
-    color: #e07b00;
+    color: #b8960b;
+    font-weight: bold;
+  }}
+  .expiring-later {{
+    color: #1e7e34;
     font-weight: bold;
   }}
   .empty-state {{
@@ -426,14 +529,16 @@ HTML_TEMPLATE_HEAD = """<!DOCTYPE html>
     margin-right: 0.35rem;
   }}
   .dot-expired {{ background: #c0392b; }}
-  .dot-soon    {{ background: #e07b00; }}
+  .dot-soon    {{ background: #b8960b; }}
+  .dot-later   {{ background: #1e7e34; }}
 </style>
 </head>
 <body>
 <h1>Prisma SASE Certificate Expiration Report</h1>
 <div class="meta">
   Generated on {generated_on} &middot; Folder: "{folder}" &middot;
-  {expired_count} expired &middot; {soon_count} expiring in {min_days}-{max_days} days
+  {expired_count} expired &middot; {soon_count} expiring in {min_days}-{max_days} days &middot;
+  {later_count} expiring in {soon_max_plus_one}-{later_max_days} days
 </div>
 """
 
@@ -441,26 +546,83 @@ HTML_TEMPLATE_TAIL = """
 <div class="legend">
   <span><span class="dot dot-expired"></span>Expired</span>
   <span><span class="dot dot-soon"></span>Expiring in {min_days}-{max_days} days</span>
+  <span><span class="dot dot-later"></span>Expiring in {soon_max_plus_one}-{later_max_days} days</span>
 </div>
+{filter_script}
 </body>
 </html>
 """
 
+# Inline JS: live, per-column, case-insensitive substring filtering.
+# Only injected when the table (and its filter inputs) actually exist —
+# the empty-state message has no table/filter row, so no script is needed.
+# All matching happens client-side against the already-rendered HTML;
+# no data is fetched or sent anywhere, keeping the report fully
+# self-contained and safe to open from disk.
+FILTER_SCRIPT = """<script>
+function filterCertTable() {
+  var table = document.getElementById("certTable");
+  if (!table) { return; }
+  var inputs = table.querySelectorAll(".filter-row input");
+  var filters = [];
+  inputs.forEach(function (input) {
+    filters[parseInt(input.getAttribute("data-col"), 10)] =
+      input.value.trim().toLowerCase();
+  });
+
+  var rows = table.querySelectorAll("tbody tr");
+  var visibleCount = 0;
+  rows.forEach(function (row) {
+    var cells = row.querySelectorAll("td");
+    var isMatch = true;
+    for (var i = 0; i < filters.length; i++) {
+      var needle = filters[i];
+      if (!needle) { continue; }
+      var cellText = cells[i] ? cells[i].textContent.toLowerCase() : "";
+      if (cellText.indexOf(needle) === -1) {
+        isMatch = false;
+        break;
+      }
+    }
+    row.classList.toggle("filtered-out", !isMatch);
+    if (isMatch) { visibleCount++; }
+  });
+
+  var summary = document.getElementById("certTableFilterSummary");
+  if (summary) {
+    var total = parseInt(table.getAttribute("data-total-rows"), 10) || rows.length;
+    summary.textContent = (visibleCount === total)
+      ? "Showing all " + total + " row(s)."
+      : "Showing " + visibleCount + " of " + total + " row(s) (filtered).";
+  }
+}
+document.addEventListener("DOMContentLoaded", filterCertTable);
+</script>"""
+
 
 def _status_label(status: str) -> str:
-    return "EXPIRED" if status == "expired" else f"EXPIRING SOON"
+    if status == "expired":
+        return "EXPIRED"
+    if status == "expiring_soon":
+        return "EXPIRING SOON"
+    return "EXPIRING LATER"
 
 
 def _status_css_class(status: str) -> str:
-    return "expired" if status == "expired" else "expiring-soon"
+    if status == "expired":
+        return "expired"
+    if status == "expiring_soon":
+        return "expiring-soon"
+    return "expiring-later"
 
 
 def write_html_report(rows: list[dict], output_file: str) -> None:
     """
     Writes a single self-contained HTML file with a table of action-item
-    certificates (expired + expiring-soon only). Expired rows are bold
-    red; expiring-soon rows are bold orange. Opens directly in a browser
-    with no server required.
+    certificates (expired + expiring-soon + expiring-later). Expired rows
+    are bold red; expiring-soon (30-90 days) rows are bold yellow;
+    expiring-later (91-365 days) rows are bold green. Opens directly in a
+    browser with no server required.
     """
     print(f"[4/4] Writing report to '{output_file}'...")
 
@@ -468,22 +630,31 @@ def write_html_report(rows: list[dict], output_file: str) -> None:
     generated_on = today.strftime("%Y-%m-%d")
     expired_count = sum(1 for r in rows if r["status"] == "expired")
     soon_count    = sum(1 for r in rows if r["status"] == "expiring_soon")
+    later_count   = sum(1 for r in rows if r["status"] == "expiring_later")
 
     head = HTML_TEMPLATE_HEAD.format(
         generated_on=generated_on,
         folder=html_lib.escape(CERT_FOLDER),
         expired_count=expired_count,
         soon_count=soon_count,
+        later_count=later_count,
         min_days=EXPIRING_SOON_MIN_DAYS,
         max_days=EXPIRING_SOON_MAX_DAYS,
+        soon_max_plus_one=EXPIRING_SOON_MAX_DAYS + 1,
+        later_max_days=EXPIRING_LATER_MAX_DAYS,
     )
     tail = HTML_TEMPLATE_TAIL.format(
         min_days=EXPIRING_SOON_MIN_DAYS,
         max_days=EXPIRING_SOON_MAX_DAYS,
+        soon_max_plus_one=EXPIRING_SOON_MAX_DAYS + 1,
+        later_max_days=EXPIRING_LATER_MAX_DAYS,
+        # Only inject the filter <script> when there's a table to filter —
+        # the empty-state message has no filter inputs, so no JS is needed.
+        filter_script=FILTER_SCRIPT if rows else "",
     )
 
     if not rows:
-        body = '<div class="empty-state">No expired or expiring-soon certificates found. ✅</div>'
+        body = '<div class="empty-state">No expired or expiring certificates found. ✅</div>'
     else:
         row_html = []
         for r in rows:
@@ -506,14 +677,37 @@ def write_html_report(rows: list[dict], output_file: str) -> None:
                     label=_status_label(r["status"]),
                 )
             )
+        total_row_count = len(rows)
+        # Per-column live text filter inputs. Each input's data-col attribute
+        # matches the 0-based <td> index it filters; filterTable() (in the
+        # tail's inline <script>) reads all six inputs and shows only rows
+        # whose corresponding cell text contains every non-empty filter
+        # value (case-insensitive substring match, AND across columns).
+        filter_row = (
+            "<tr class=\"filter-row\">"
+            + "".join(
+                f'<th class="filter-row"><input type="text" data-col="{i}" '
+                f'oninput="filterCertTable()" placeholder="Filter..." '
+                f'aria-label="Filter {label}"></th>'
+                for i, label in enumerate([
+                    "Tenant Name", "TSG ID", "Certificate Name",
+                    "Expiry Date", "Days Until Expiry", "Status",
+                ])
+            )
+            + "</tr>"
+        )
         body = (
-            "<table>"
-            "<thead><tr>"
+            f'<table id="certTable" data-total-rows="{total_row_count}">'
+            "<thead>"
+            "<tr>"
             "<th>Tenant Name</th><th>TSG ID</th><th>Certificate Name</th>"
             "<th>Expiry Date</th><th>Days Until Expiry</th><th>Status</th>"
-            "</tr></thead>"
+            "</tr>"
+            f"{filter_row}"
+            "</thead>"
             f"<tbody>{''.join(row_html)}</tbody>"
             "</table>"
+            '<div class="filter-summary" id="certTableFilterSummary"></div>'
         )
 
     with open(output_file, "w", encoding="utf-8") as f:
@@ -521,8 +715,8 @@ def write_html_report(rows: list[dict], output_file: str) -> None:
         f.write(body)
         f.write(tail)
 
-    print(f"Done — {expired_count} expired, {soon_count} expiring-soon "
-          f"certificate(s) written to '{output_file}'.")
+    print(f"Done — {expired_count} expired, {soon_count} expiring-soon, "
+          f"{later_count} expiring-later certificate(s) written to '{output_file}'.")
 
 
 # ---------------------------------------------------------------------------
@@ -547,31 +741,103 @@ def _prompt_credentials() -> None:
     print()
 
 
-def main() -> None:
-    _prompt_credentials()
-    token = get_access_token()
-    if not token:
-        print("Aborting: could not obtain access token.")
-        sys.exit(1)
+class _TeeLogger:
+    """
+    Duplicates every write() to both the original stream (console) and an
+    open log file handle, so the full console transcript — including
+    "WARNING:" lines and raw skipped-record dumps — is always captured to
+    disk for later diagnosis, without changing any existing print() calls.
+    """
+    def __init__(self, original_stream, log_file_handle):
+        self._original = original_stream
+        self._log      = log_file_handle
 
-    tenant_map = fetch_tenant_hierarchy(token)
-    if not tenant_map:
-        print("No tenants found in hierarchy — nothing to check.")
-        sys.exit(0)
+    def write(self, data: str) -> None:
+        self._original.write(data)
+        self._log.write(data)
 
-    cert_entries = fetch_all_certificates(token, tenant_map)
-    if not cert_entries:
-        print("No certificates returned for any tenant — nothing to write.")
-        sys.exit(0)
+    def flush(self) -> None:
+        self._original.flush()
+        self._log.flush()
 
-    today = datetime.date.today()
-    rows  = build_report_rows(cert_entries, today)
 
+def run_report(
+    client_id: str,
+    client_secret: str,
+    tsg_id: str,
+    progress_callback=None,
+) -> tuple[str, str]:
+    """
+    Non-interactive orchestration entry point (used by both the CLI
+    main() below and by external callers such as a web frontend).
+
+    Sets the module-level credential globals, runs the full pipeline
+    (auth -> hierarchy -> per-tenant certificates -> classify -> HTML
+    write), and returns (output_html_path, log_file_path).
+
+    If provided, progress_callback(idx, total, tenant_name) is forwarded
+    to fetch_all_certificates() so a caller can report live progress
+    (e.g. for a web UI progress bar) without parsing console/log output.
+
+    Raises RuntimeError (with a human-readable message) on any failure
+    instead of calling sys.exit(), so callers embedding this in a
+    long-running process (e.g. a Flask background job) can catch and
+    report the error without killing the whole process. The full
+    console transcript (including this error) is still written to the
+    companion .log file for diagnosis either way.
+    """
+    global CLIENT_ID, CLIENT_SECRET, TSG_ID
+    CLIENT_ID     = client_id
+    CLIENT_SECRET = client_secret
+    TSG_ID        = tsg_id
+
+    today       = datetime.date.today()
     datestamp   = today.strftime("%Y-%m-%d")
+    log_file    = f"prisma_cert_expiration_report_{datestamp}.log"
     output_file = f"prisma_cert_expiration_report_{datestamp}.html"
 
-    write_html_report(rows, output_file)
-    print("\nReport complete.")
+    original_stdout = sys.stdout
+    with open(log_file, "w", encoding="utf-8") as log_fh:
+        sys.stdout = _TeeLogger(original_stdout, log_fh)
+        try:
+            print(f"Log file: {log_file}")
+            token = get_access_token()
+            if not token:
+                raise RuntimeError("Could not obtain access token. Check credentials and TSG ID.")
+
+            tenant_map = fetch_tenant_hierarchy(token)
+            if not tenant_map:
+                raise RuntimeError("No tenants found in hierarchy — nothing to check.")
+
+            cert_entries = fetch_all_certificates(token, tenant_map, progress_callback)
+            if not cert_entries:
+                raise RuntimeError("No certificates returned for any tenant — nothing to write.")
+
+            rows = build_report_rows(cert_entries, today)
+
+            write_html_report(rows, output_file)
+            print("\nReport complete.")
+            return output_file, log_file
+        except RuntimeError as e:
+            print(f"\nERROR: {e}")
+            raise
+        except Exception:
+            # Ensure any unexpected crash is fully captured in the log file
+            # (not just printed to a console that may have scrolled away).
+            print("\nUNHANDLED ERROR:")
+            print(traceback.format_exc())
+            raise
+        finally:
+            sys.stdout = original_stdout
+
+
+def main() -> None:
+    _prompt_credentials()
+    try:
+        run_report(CLIENT_ID, CLIENT_SECRET, TSG_ID)
+    except Exception as e:
+        print(f"Aborting: {e}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":

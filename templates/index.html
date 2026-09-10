@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Prisma CSE Reports — Dashboard{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>Prisma SASE Report Generator</h1>
+  <p class="subtitle">Choose a report to generate. You'll be asked for your Service Account credentials on the next step.</p>
+
+  <div class="report-links">
+    <a class="report-tile" href="{{ url_for('report_form', report_type='license') }}">
+      <h2>📊 License Report</h2>
+      <p>RN &amp; MU license assigned/consumed across all child tenants. Produces an Excel (.xlsx) workbook with RN and MU sheets.</p>
+    </a>
+    <a class="report-tile" href="{{ url_for('report_form', report_type='cert') }}">
+      <h2>🔐 Certificate Expiration Report</h2>
+      <p>Expired and soon-to-expire "Mobile Users" certificates across all child tenants. Produces a browser-viewable HTML report.</p>
+    </a>
+  </div>
+
+  <p class="note">
+    Credentials are submitted once per report run and held only in this local server process's memory —
+    they are never written to disk or logged. This app is intended for local, single-user use only.
+  </p>
+</div>
+{% endblock %}

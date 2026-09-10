@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Prisma CSE Reports{% endblock %}</title>
+  <style>
+    :root {
+      --pan-navy:      #1F4E79;
+      --pan-navy-dark: #163a5c;
+      --pan-teal:      #00C0E8;
+      --pan-bg:        #F4F6F9;
+      --pan-card:      #FFFFFF;
+      --pan-border:    #D0D9E4;
+      --pan-text:      #1a2b3c;
+      --pan-muted:     #5a7a99;
+      --pan-error:     #c0392b;
+      --radius:        10px;
+      --shadow:        0 2px 12px rgba(31,78,121,0.10);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--pan-bg);
+      color: var(--pan-text);
+      min-height: 100vh;
+    }
+    header {
+      background: var(--pan-navy);
+      color: #fff;
+      padding: 0 2rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 1.15rem;
+      font-weight: 600;
+    }
+    main {
+      max-width: 720px;
+      margin: 2.5rem auto;
+      padding: 0 1.5rem;
+    }
+    .card {
+      background: var(--pan-card);
+      border: 1px solid var(--pan-border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 2rem;
+    }
+    h1 {
+      color: var(--pan-navy);
+      margin-bottom: 0.5rem;
+      font-size: 1.5rem;
+    }
+    p.subtitle {
+      color: var(--pan-muted);
+      margin-bottom: 1.5rem;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: var(--pan-text);
+    }
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 0.6rem 0.75rem;
+      border: 1px solid var(--pan-border);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      color: var(--pan-text);
+      background: #fff;
+    }
+    input:focus {
+      outline: none;
+      border-color: var(--pan-navy);
+      box-shadow: 0 0 0 2px rgba(31,78,121,0.15);
+    }
+    button, .btn {
+      display: inline-block;
+      background: var(--pan-navy);
+      color: #fff;
+      border: none;
+      padding: 0.7rem 1.4rem;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 1.5rem;
+      text-decoration: none;
+    }
+    button:hover, .btn:hover {
+      background: var(--pan-navy-dark);
+    }
+    .btn-secondary {
+      background: #fff;
+      color: var(--pan-navy);
+      border: 1px solid var(--pan-navy);
+    }
+    .btn-secondary:hover {
+      background: var(--pan-bg);
+    }
+    .error-box {
+      background: #fdecea;
+      border: 1px solid var(--pan-error);
+      color: var(--pan-error);
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+    }
+    .note {
+      font-size: 0.82rem;
+      color: var(--pan-muted);
+      margin-top: 1.5rem;
+      line-height: 1.4;
+    }
+    .report-links {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      margin-top: 1.5rem;
+    }
+    .report-tile {
+      display: block;
+      background: var(--pan-card);
+      border: 1px solid var(--pan-border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 1.5rem;
+      text-decoration: none;
+      color: var(--pan-text);
+      transition: box-shadow 0.15s ease, transform 0.15s ease;
+    }
+    .report-tile:hover {
+      box-shadow: 0 6px 24px rgba(31,78,121,0.18);
+      transform: translateY(-2px);
+    }
+    .report-tile h2 {
+      color: var(--pan-navy);
+      font-size: 1.1rem;
+      margin-bottom: 0.4rem;
+    }
+    .report-tile p {
+      color: var(--pan-muted);
+      font-size: 0.88rem;
+    }
+    .progress-bar-track {
+      background: #e7ecf2;
+      border-radius: 999px;
+      height: 14px;
+      overflow: hidden;
+      margin-top: 1.25rem;
+    }
+    .progress-bar-fill {
+      background: var(--pan-teal);
+      height: 100%;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    .progress-stage {
+      margin-top: 0.75rem;
+      font-size: 0.9rem;
+      color: var(--pan-muted);
+    }
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid var(--pan-border);
+      border-top-color: var(--pan-navy);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-right: 0.5rem;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="{{ url_for('dashboard') }}">🛡️ Prisma CSE Reports</a>
+  </header>
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

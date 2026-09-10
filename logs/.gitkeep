@@ -1,0 +1,3 @@
+This directory holds IIS httpPlatformHandler stdout/stderr logs (stdout.log)
+when hosted per web.config. It is intentionally kept in source control (via
+this placeholder file) since IIS does not create the directory itself.

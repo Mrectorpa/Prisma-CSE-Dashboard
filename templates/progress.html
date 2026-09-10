@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Generating Report...{% endblock %}
+{% block content %}
+<div class="card">
+  <h1><span class="spinner" id="spinner"></span><span id="titleText">Generating report...</span></h1>
+  <p class="subtitle" id="stageText">Starting...</p>
+
+  <div class="progress-bar-track">
+    <div class="progress-bar-fill" id="progressFill"></div>
+  </div>
+  <p class="progress-stage" id="progressCount"></p>
+
+  <div id="errorBox" class="error-box" style="display:none;"></div>
+  <div id="resultBox" style="display:none;">
+    <a class="btn" id="downloadLink" href="#">⬇ Download Report</a>
+    <a class="btn btn-secondary" href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+  </div>
+
+  <p class="note">This page updates automatically — no need to refresh.</p>
+</div>
+
+<script>
+  const jobId = {{ job_id | tojson }};
+  const reportType = {{ report_type | tojson }};
+
+  function poll() {
+    fetch("/api/status/" + jobId)
+      .then(r => r.json())
+      .then(job => {
+        if (job.error && job.status === undefined) {
+          document.getElementById("stageText").textContent = "Job not found.";
+          return;
+        }
+
+        document.getElementById("stageText").textContent = job.stage || "";
+
+        if (job.total > 0) {
+          const pct = Math.min(100, Math.round((job.current / job.total) * 100));
+          document.getElementById("progressFill").style.width = pct + "%";
+          document.getElementById("progressCount").textContent =
+            job.current + " of " + job.total + " tenant(s) processed (" + pct + "%)";
+        }
+
+        if (job.status === "done") {
+          document.getElementById("spinner").style.display = "none";
+          document.getElementById("titleText").textContent = "Report complete!";
+          document.getElementById("progressFill").style.width = "100%";
+          const link = document.getElementById("downloadLink");
+          link.href = "/download/" + encodeURIComponent(job.result_file);
+          document.getElementById("resultBox").style.display = "block";
+          return; // stop polling
+        }
+
+        if (job.status === "error") {
+          document.getElementById("spinner").style.display = "none";
+          document.getElementById("titleText").textContent = "Report failed";
+          document.getElementById("errorBox").textContent = job.error || "Unknown error.";
+          document.getElementById("errorBox").style.display = "block";
+          return; // stop polling
+        }
+
+        setTimeout(poll, 1500);
+      })
+      .catch(() => setTimeout(poll, 3000));
+  }
+
+  poll();
+</script>
+{% endblock %}

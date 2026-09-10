@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}
+  {% if report_type == 'license' %}License Report{% else %}Certificate Expiration Report{% endif %} — Credentials
+{% endblock %}
+{% block content %}
+<div class="card">
+  {% if report_type == 'license' %}
+    <h1>📊 License Report</h1>
+    <p class="subtitle">Enter your Service Account credentials to fetch RN &amp; MU license data across all child tenants.</p>
+  {% else %}
+    <h1>🔐 Certificate Expiration Report</h1>
+    <p class="subtitle">Enter your Service Account credentials to check "Mobile Users" certificates across all child tenants.</p>
+  {% endif %}
+
+  {% if error %}
+    <div class="error-box">{{ error }}</div>
+  {% endif %}
+
+  <form method="POST" autocomplete="off">
+    <label for="client_id">Service Account Client ID</label>
+    <input type="text" id="client_id" name="client_id" required />
+
+    <label for="client_secret">Client Secret</label>
+    <input type="password" id="client_secret" name="client_secret" required />
+
+    <label for="tsg_id">Root TSG ID</label>
+    <input type="text" id="tsg_id" name="tsg_id" required />
+
+    <button type="submit">Generate Report</button>
+    <a class="btn btn-secondary" href="{{ url_for('dashboard') }}">Cancel</a>
+  </form>
+
+  <p class="note">
+    These credentials are used only for this one report run and are held in server memory only —
+    they are never written to disk, logged, or stored between requests.
+  </p>
+</div>
+{% endblock %}

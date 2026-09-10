@@ -324,6 +324,7 @@ def _get_child_token(child_tsg_id: str) -> str | None:
 def fetch_mu_counts(
     mu_tenants: list[tuple[str, str, str]],  # list of (cdl_id, tsg_id, region)
     name_map:   dict[str, str],              # cdl_id -> display_name
+    progress_callback=None,
 ) -> dict[str, int]:
     """
     For each MU tenant, acquires a child-TSG-scoped token then calls:
@@ -331,6 +332,11 @@ def fetch_mu_counts(
 
     Key insight: the token MUST be scoped to the child TSG ID, not the root.
     No Prisma-Tenant header is needed — the token scope determines the tenant.
+
+    If provided, progress_callback(idx, total, tenant_name) is invoked
+    after each tenant is processed — used by callers (e.g. a web
+    frontend background job) to report live per-tenant progress without
+    needing to parse console output.
 
     Returns a dict: cdl_id -> user_count
     """
@@ -375,6 +381,8 @@ def fetch_mu_counts(
 
         mu_map[cdl_id] = count
         print(f"        [{idx}/{total}] {tenant_name} (region={region}) → user_count={count}")
+        if progress_callback is not None:
+            progress_callback(idx, total, tenant_name)
 
     nonzero = sum(1 for v in mu_map.values() if v > 0)
     print(f"      Done — {nonzero} tenant(s) with user_count > 0.")
@@ -551,19 +559,43 @@ def _prompt_credentials() -> None:
     print()
 
 
-def main() -> None:
-    _prompt_credentials()
+def run_report(
+    client_id: str,
+    client_secret: str,
+    tsg_id: str,
+    progress_callback=None,
+) -> str:
+    """
+    Non-interactive orchestration entry point (used by both the CLI
+    main() below and by external callers such as a web frontend).
+
+    Sets the module-level credential globals, runs the full pipeline
+    (auth -> hierarchy -> utilization -> MU counts -> xlsx write), and
+    returns the path to the generated .xlsx file.
+
+    If provided, progress_callback(idx, total, tenant_name) is forwarded
+    to fetch_mu_counts() (the slowest, per-tenant step) so a caller can
+    report live progress (e.g. for a web UI progress bar).
+
+    Raises RuntimeError (with a human-readable message) on any failure
+    instead of calling sys.exit(), so callers embedding this in a
+    long-running process (e.g. a Flask background job) can catch and
+    report the error without killing the whole process.
+    """
+    global CLIENT_ID, CLIENT_SECRET, TSG_ID
+    CLIENT_ID     = client_id
+    CLIENT_SECRET = client_secret
+    TSG_ID        = tsg_id
+
     token = get_access_token()
     if not token:
-        print("Aborting: could not obtain access token.")
-        sys.exit(1)
+        raise RuntimeError("Could not obtain access token. Check credentials and TSG ID.")
 
     name_map, parent_map, tsg_map = fetch_tenant_hierarchy(token)
     util_records                  = fetch_license_utilization_all_regions(token)
 
     if not util_records:
-        print("No utilization records returned — nothing to write.")
-        sys.exit(0)
+        raise RuntimeError("No utilization records returned — nothing to write.")
 
     # Build list of (cdl_id, tsg_id, region) for MU tenants that have assigned licenses
     mu_tenants: list[tuple[str, str, str]] = []
@@ -578,13 +610,23 @@ def main() -> None:
                 seen_cdl.add(cdl_id)
                 mu_tenants.append((cdl_id, child_tsg_id, region))
 
-    mu_map = fetch_mu_counts(mu_tenants, name_map)
+    mu_map = fetch_mu_counts(mu_tenants, name_map, progress_callback)
 
     datestamp   = datetime.date.today().strftime("%Y-%m-%d")
     output_file = f"prisma_tenant_license_report_{datestamp}.xlsx"
 
     write_xlsx(util_records, name_map, parent_map, tsg_map, mu_map, output_file)
     print("\nReport complete.")
+    return output_file
+
+
+def main() -> None:
+    _prompt_credentials()
+    try:
+        run_report(CLIENT_ID, CLIENT_SECRET, TSG_ID)
+    except RuntimeError as e:
+        print(f"Aborting: {e}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
