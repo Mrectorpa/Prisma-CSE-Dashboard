@@ -115,7 +115,7 @@ def _run_license_job(job_id: str, client_id: str, client_secret: str, tsg_id: st
             job_id,
             current=idx,
             total=total,
-            stage=f"Fetching MU user counts: {tenant_name} ({idx}/{total})",
+            stage=f"Fetching license subscription status: {tenant_name} ({idx}/{total})",
         )
 
     try:

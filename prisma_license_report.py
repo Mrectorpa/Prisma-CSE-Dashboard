@@ -1,44 +1,60 @@
 """
 prisma_license_report.py
 ------------------------
-Retrieves tenant and subtenant names along with MU & RN license
-assigned and consumed (last 30 days) from the Palo Alto Networks
-SASE APIs and writes the results to an Excel workbook (.xlsx) with
-two sheets — one for RN and one for MU.
+Retrieves MU & RN license assigned/consumed for every child tenant
+under a root TSG from the Palo Alto Networks SASE APIs and writes the
+results to an Excel workbook (.xlsx) with two sheets — one for RN and
+one for MU.
 
 APIs used (pan.dev):
   Auth:
     POST https://auth.apps.paloaltonetworks.com/oauth2/access_token
 
-  Tenant hierarchy  (TenantHierarchy schema — provides cdlTenantId + display_name):
+  Tenant hierarchy  (TenantHierarchy schema — provides id (TSG Id) +
+  display_name; used to resolve each child tenant's human-readable name):
     GET  https://api.sase.paloaltonetworks.com/mt/monitor/v1/agg/custom/tenant/hierarchy
 
-  License utilization  (LicenseUtilization schema — MU & RN, last 30 days):
-    GET  https://api.sase.paloaltonetworks.com/mt/monitor/v1/agg/custom/license/utilization
-         ?agg_by=tenant&product_type=<MU|RN>&time_period=30d
+  License subscription status  (SubscriptionStatus schema — MU, RN, SC, PAB):
+    GET  https://api.apps.paloaltonetworks.com/mt/monitoring/v2/license/subscription-status
          Header: X-PANW-Region: <region>
-    Note: product_type is queried separately per type (MU, then RN) rather
-          than as a combined "MU,RN" value — some regions' backend
-          aggregation returns a 5xx "Unexpected server error" when both
-          product types are requested together for tenants with real data.
-          Requests are also retried with exponential backoff on 5xx errors.
-
-  MU user count  (Insights 3.0 — connected_entity_count):
-    POST https://api.sase.paloaltonetworks.com/insights/v3.0/resource/query/users/agent/connected_entity_count
-    Note: Must use a token scoped to the CHILD TSG ID (tsg_id:<child_tsg_id>), NOT the root TSG.
-          The root-scoped token returns user_count=0 with isResourceDataOverridden=true.
-          No Prisma-Tenant header is needed when the token is already child-scoped.
+    Note: Calling this endpoint with a token scoped to the ROOT TSG_ID
+          returns an AGGREGATED response covering every child tenant
+          under that root — each entry in instances.mobile_users[] /
+          instances.remote_networks[] carries its OWN "tsg_id" field
+          identifying which child tenant that specific entry's
+          license_total/license_utilized belongs to. The root TSG_ID
+          itself is NOT the tenant the data is about — each entry must
+          be joined against the tenant hierarchy using its own tsg_id
+          to get the correct tenant name. Because the data's home
+          region isn't exposed anywhere else, each region in
+          ALL_REGIONS is tried (with retry/backoff on 5xx) until one
+          returns non-empty instance data.
+    Response shape:
+      {
+        "data": {
+          "instances": {
+            "mobile_users":      [{end_date, license_total, license_utilized, tsg_id}],
+            "remote_networks":   [{end_date, license_total, license_utilized, tsg_id}],
+            "service_connections": [...],
+            "pab": [...]
+          },
+          "total_entries": N
+        },
+        "requestId": "..."
+      }
 
 Key schema facts (OpenAPI spec):
   TenantHierarchy.id           = TSG Id
-  TenantHierarchy.cdlTenantId  = CDL Tenant Id  ← matches sub_tenant_id in license APIs
   TenantHierarchy.display_name = human-readable name
-  LicenseUtilization.sub_tenant_id    = CDL Tenant Id  (join key)
-  LicenseUtilization.product_type     = "MU" or "RN"
-  LicenseUtilization.license_units    = units allocated to the tenant
-  LicenseUtilization.license_units_used = units consumed (always 0 for MU)
-  LicenseUtilization.utilization_percentage = consumed / allocated * 100
-  Insights connected_entity_count.data[0].user_count = active MU users (30-day window)
+  SubscriptionStatus entry.tsg_id             = TSG Id of the CHILD tenant
+                                                 that entry's data belongs to
+                                                 (join key into the hierarchy —
+                                                 NOT necessarily the root TSG_ID
+                                                 used to obtain the token)
+  SubscriptionStatus instances.mobile_users[]  = MU license entries
+  SubscriptionStatus instances.remote_networks[] = RN license entries
+  SubscriptionStatus entry.license_total    = units allocated to that tenant
+  SubscriptionStatus entry.license_utilized = units consumed by that tenant
 """
 
 import sys
@@ -64,11 +80,11 @@ TSG_ID:        str = ""
 # ---------------------------------------------------------------------------
 # ENDPOINTS
 # ---------------------------------------------------------------------------
-AUTH_URL        = "https://auth.apps.paloaltonetworks.com/oauth2/access_token"
-SASE_BASE_URL   = "https://api.sase.paloaltonetworks.com"
-HIERARCHY_URL   = f"{SASE_BASE_URL}/mt/monitor/v1/agg/custom/tenant/hierarchy"
-UTILIZATION_URL = f"{SASE_BASE_URL}/mt/monitor/v1/agg/custom/license/utilization"
-INSIGHTS_MU_URL = f"{SASE_BASE_URL}/insights/v3.0/resource/query/users/agent/connected_entity_count"
+AUTH_URL                = "https://auth.apps.paloaltonetworks.com/oauth2/access_token"
+SASE_BASE_URL           = "https://api.sase.paloaltonetworks.com"
+APPS_BASE_URL           = "https://api.apps.paloaltonetworks.com"
+HIERARCHY_URL           = f"{SASE_BASE_URL}/mt/monitor/v1/agg/custom/tenant/hierarchy"
+SUBSCRIPTION_STATUS_URL = f"{APPS_BASE_URL}/mt/monitoring/v2/license/subscription-status"
 
 
 # ---------------------------------------------------------------------------
@@ -99,17 +115,18 @@ def get_access_token() -> str | None:
 
 
 # ---------------------------------------------------------------------------
-# STEP 2 — Fetch tenant hierarchy
+# STEP 2 — Fetch tenant hierarchy (child tenant id -> display_name)
 # ---------------------------------------------------------------------------
-def fetch_tenant_hierarchy(token: str) -> tuple[dict, dict]:
+def fetch_tenant_hierarchy(token: str) -> dict[str, str]:
     """
-    Calls /mt/monitor/v1/agg/custom/tenant/hierarchy.
+    Calls /mt/monitor/v1/agg/custom/tenant/hierarchy and walks the
+    nested TenantHierarchy tree (root + all descendants at any depth),
+    building a dict keyed by TSG Id ("id" field):
 
-    Walks the nested TenantHierarchy tree and builds two dicts
-    keyed by cdlTenantId (which matches sub_tenant_id in license APIs):
+      name_map : tsg_id -> display_name
 
-      name_map   : cdlTenantId -> display_name
-      parent_map : cdlTenantId -> parent display_name  (absent for root nodes)
+    This is used to resolve the human-readable name of whichever child
+    tenant a given subscription-status entry's own "tsg_id" refers to.
     """
     print("[2/3] Fetching tenant hierarchy...")
     headers = {"Authorization": f"Bearer {token}", "Accept": "application/json"}
@@ -119,10 +136,10 @@ def fetch_tenant_hierarchy(token: str) -> tuple[dict, dict]:
         resp.raise_for_status()
     except requests.exceptions.HTTPError as e:
         print(f"  HTTP {e.response.status_code}: {e.response.text}")
-        return {}, {}
+        return {}
     except requests.exceptions.RequestException as e:
         print(f"  Network error: {e}")
-        return {}, {}
+        return {}
 
     body = resp.json()
     if isinstance(body, list):
@@ -131,46 +148,40 @@ def fetch_tenant_hierarchy(token: str) -> tuple[dict, dict]:
         roots = body["items"]
     elif "data" in body:
         roots = body["data"]
-    elif "cdlTenantId" in body or "id" in body:
+    elif "id" in body:
         roots = [body]
     else:
         roots = []
 
-    name_map:   dict[str, str] = {}
-    parent_map: dict[str, str] = {}
-    tsg_map:    dict[str, str] = {}   # cdlTenantId -> TSG id
+    name_map: dict[str, str] = {}
 
-    def _walk(node: dict, parent_name: str | None) -> None:
-        cdl_id    = str(node.get("cdlTenantId", ""))
+    def _walk(node: dict) -> None:
         tsg_id    = str(node.get("id", ""))
         node_name = node.get("display_name", f"Unknown (TSG:{tsg_id})")
-        if cdl_id:
-            name_map[cdl_id]  = node_name
-            tsg_map[cdl_id]   = tsg_id
-            if parent_name is not None:
-                parent_map[cdl_id] = parent_name
+        if tsg_id:
+            name_map[tsg_id] = node_name
         for child in node.get("children", []):
-            _walk(child, node_name)
+            _walk(child)
 
     for root in roots:
-        _walk(root, None)
+        _walk(root)
 
     print(f"  Resolved {len(name_map)} tenant node(s).")
-    return name_map, parent_map, tsg_map
+    return name_map
 
 
 # ---------------------------------------------------------------------------
-# STEP 3 — Fetch license utilization (assigned + consumed, last 30 days)
+# STEP 3 — Fetch license subscription status (aggregated across children)
 # ---------------------------------------------------------------------------
 
-# Product types are queried individually (rather than as a combined
-# "MU,RN" param) because some regions' backend aggregation fails with a
-# 5xx "Unexpected server error" when both product types are requested
-# together for tenants that actually have data. Splitting the calls lets
-# one product type succeed even if the other keeps failing.
-PRODUCT_TYPES = ["MU", "RN"]
+# Keys under which each product type's entries are reported in the
+# SubscriptionStatus response's "instances" map.
+SUBSCRIPTION_INSTANCE_KEYS = {
+    "MU": "mobile_users",
+    "RN": "remote_networks",
+}
 
-# Retry/backoff settings for transient 5xx errors from the Insights Service.
+# Retry/backoff settings for transient 5xx errors from the API.
 RETRYABLE_STATUS_CODES = {500, 502, 503, 504}
 MAX_RETRIES  = 3       # total attempts = 1 initial + (MAX_RETRIES - 1) retries
 BACKOFF_BASE = 2.0     # seconds; doubles each retry (2s, 4s, 8s, ...)
@@ -198,199 +209,97 @@ def _get_with_backoff(url: str, headers: dict, params: dict, timeout: int):
         return resp
 
 
-def fetch_license_utilization_for_region_and_type(
-    token: str, region: str, product_type: str
-) -> list[dict]:
+def fetch_subscription_status(token: str) -> list[dict]:
     """
-    Calls /mt/monitor/v1/agg/custom/license/utilization for a single
-    region AND a single product type ("MU" or "RN"), retrying transient
-    5xx failures with backoff before giving up.
+    Calls /mt/monitoring/v2/license/subscription-status using the
+    root-TSG-scoped token, trying each region in ALL_REGIONS (with
+    retry/backoff on 5xx) and COLLECTING results from every region that
+    returns data (rather than stopping at the first hit), since
+    different child tenants may live in different regions.
 
-    Each LicenseUtilization record contains:
-      sub_tenant_id       : CDL Tenant Id  (join key to hierarchy)
-      product_type        : "MU" or "RN"
-      license_units       : units allocated to the tenant
-      license_units_used  : units consumed in the 30-day window
-      utilization_percentage
+    Returns a flat list of raw entries, each tagged with:
+      _product_type : "MU" or "RN"
+      _region       : the region the entry was returned from
+
+    Each entry retains its original fields, including its own "tsg_id"
+    identifying the child tenant it belongs to.
     """
-    headers = {
+    print("[3/3] Fetching MU & RN license subscription status across all regions...")
+    headers_base = {
         "Authorization": f"Bearer {token}",
         "Accept": "application/json",
-        "X-PANW-Region": region,
-    }
-    params = {
-        "agg_by":       "tenant",
-        "product_type": product_type,
-        "time_period":  "30d",
     }
 
-    try:
-        resp = _get_with_backoff(UTILIZATION_URL, headers, params, timeout=30)
-        resp.raise_for_status()
-    except requests.exceptions.HTTPError as e:
-        # 400/404 is expected for regions where this tenant has no data.
-        # 5xx means the API itself failed after exhausting retries — surface
-        # the response body so the actual cause (bad scope, malformed param,
-        # backend error, etc.) is visible.
-        detail = e.response.text.strip() if e.response is not None else ""
-        print(f"    [{region}/{product_type}] HTTP {e.response.status_code} — skipping.")
-        if detail:
-            print(f"      -> {detail[:500]}")
-        return []
-    except requests.exceptions.RequestException as e:
-        print(f"    [{region}/{product_type}] Network error: {e} — skipping.")
-        return []
+    all_entries: list[dict] = []
+    seen: set[tuple] = set()
 
-    body = resp.json()
-    if isinstance(body, list):
-        records = body
-    elif "items" in body:
-        records = body["items"]
-    elif "data" in body:
-        records = body["data"]
-    elif "sub_tenant_id" in body:
-        records = [body]
-    else:
-        records = []
+    for region in ALL_REGIONS:
+        headers = {**headers_base, "X-PANW-Region": region}
+        try:
+            resp = _get_with_backoff(SUBSCRIPTION_STATUS_URL, headers, {}, timeout=30)
+            resp.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            # 400/404 is expected for regions where this tenant has no data.
+            detail = e.response.text.strip() if e.response is not None else ""
+            print(f"    [{region}] HTTP {e.response.status_code} — skipping.")
+            if detail:
+                print(f"      -> {detail[:300]}")
+            continue
+        except requests.exceptions.RequestException as e:
+            print(f"    [{region}] Network error: {e} — skipping.")
+            continue
 
-    # Tag each record with its source region
-    for rec in records:
-        rec["_region"] = region
+        body = resp.json()
+        instances = (body.get("data") or {}).get("instances") or {}
+
+        new_count = 0
+        for product_type, instance_key in SUBSCRIPTION_INSTANCE_KEYS.items():
+            for entry in instances.get(instance_key, []) or []:
+                dedup_key = (str(entry.get("tsg_id", "")), product_type)
+                if dedup_key in seen:
+                    continue
+                seen.add(dedup_key)
+                entry = dict(entry)
+                entry["_product_type"] = product_type
+                entry["_region"] = region
+                all_entries.append(entry)
+                new_count += 1
+
+        if new_count:
+            print(f"    [{region}] +{new_count} new record(s)  (total so far: {len(all_entries)})")
+
+    print(f"  Total unique records across all regions: {len(all_entries)}")
+    return all_entries
+
+
+def build_license_records(entries: list[dict]) -> list[dict]:
+    """
+    Normalizes raw subscription-status entries (each already tagged with
+    _product_type / _region, and carrying its own child-tenant "tsg_id")
+    into a flat list of records shaped like:
+      {tsg_id, product_type, license_units, license_units_used,
+       utilization_percentage, _region}
+    """
+    records: list[dict] = []
+    for entry in entries:
+        total_units    = float(entry.get("license_total", 0) or 0)
+        utilized_units = float(entry.get("license_utilized", 0) or 0)
+        if total_units == 0:
+            continue
+        util_pct = round(utilized_units / total_units * 100, 1)
+        records.append({
+            "tsg_id":                 str(entry.get("tsg_id", "")),
+            "product_type":           entry.get("_product_type", ""),
+            "license_units":          total_units,
+            "license_units_used":     utilized_units,
+            "utilization_percentage": util_pct,
+            "_region":                entry.get("_region", ""),
+        })
     return records
 
 
-def fetch_license_utilization_for_region(token: str, region: str) -> list[dict]:
-    """
-    Calls /mt/monitor/v1/agg/custom/license/utilization for a single
-    region, once per product type (MU, RN), and combines the results.
-    """
-    recs: list[dict] = []
-    for product_type in PRODUCT_TYPES:
-        recs.extend(fetch_license_utilization_for_region_and_type(token, region, product_type))
-    return recs
-
-
-def fetch_license_utilization_all_regions(token: str) -> list[dict]:
-    """
-    Iterates over ALL_REGIONS, collects utilization records from each,
-    and deduplicates by (sub_tenant_id, product_type) — keeping the record
-    from the first region that returned data for that tenant/product pair.
-    """
-    print("[3/3] Fetching MU & RN license utilization across all regions...")
-    seen:    set[tuple] = set()
-    all_recs: list[dict] = []
-
-    for region in ALL_REGIONS:
-        recs = fetch_license_utilization_for_region(token, region)
-        new_count = 0
-        for rec in recs:
-            key = (str(rec.get("sub_tenant_id", "")), rec.get("product_type", ""))
-            if key not in seen:
-                seen.add(key)
-                all_recs.append(rec)
-                new_count += 1
-        if new_count:
-            print(f"    [{region}] +{new_count} new record(s)  (total so far: {len(all_recs)})")
-
-    print(f"  Total unique records across all regions: {len(all_recs)}")
-    return all_recs
-
-
 # ---------------------------------------------------------------------------
-# STEP 3c — Fetch MU user_count per tenant via Insights 3.0
-# ---------------------------------------------------------------------------
-def _get_child_token(child_tsg_id: str) -> str | None:
-    """
-    Acquires an OAuth2 token scoped to a specific child TSG ID.
-
-    The Insights 3.0 connected_entity_count API returns real data only when
-    the bearer token is scoped to the child TSG (tsg_id:<child_tsg_id>).
-    A root-scoped token always returns user_count=0 with
-    isResourceDataOverridden=true.
-    """
-    try:
-        resp = requests.post(
-            AUTH_URL,
-            data={"grant_type": "client_credentials", "scope": f"tsg_id:{child_tsg_id}"},
-            auth=(CLIENT_ID, CLIENT_SECRET),
-            timeout=30,
-        )
-        resp.raise_for_status()
-        return resp.json().get("access_token")
-    except Exception:
-        return None
-
-
-def fetch_mu_counts(
-    mu_tenants: list[tuple[str, str, str]],  # list of (cdl_id, tsg_id, region)
-    name_map:   dict[str, str],              # cdl_id -> display_name
-    progress_callback=None,
-) -> dict[str, int]:
-    """
-    For each MU tenant, acquires a child-TSG-scoped token then calls:
-      POST /insights/v3.0/resource/query/users/agent/connected_entity_count
-
-    Key insight: the token MUST be scoped to the child TSG ID, not the root.
-    No Prisma-Tenant header is needed — the token scope determines the tenant.
-
-    If provided, progress_callback(idx, total, tenant_name) is invoked
-    after each tenant is processed — used by callers (e.g. a web
-    frontend background job) to report live per-tenant progress without
-    needing to parse console output.
-
-    Returns a dict: cdl_id -> user_count
-    """
-    print(f"      Fetching MU user counts via Insights API ({len(mu_tenants)} tenant(s) — may be slow)...")
-    mu_map: dict[str, int] = {}
-
-    payload = {
-        "filter": {
-            "rules": [
-                {"operator": "last_n_days",  "property": "event_time",     "values": [30]},
-                {"operator": "in",           "property": "platform_type",  "values": ["prisma_access"]},
-                {"operator": "in",           "property": "connect_method", "values": ["AGENT"]},
-            ]
-        }
-    }
-
-    total = len(mu_tenants)
-    for idx, (cdl_id, child_tsg_id, region) in enumerate(mu_tenants, start=1):
-        tenant_name = name_map.get(cdl_id, f"Unknown (TSG:{child_tsg_id})")
-
-        # Acquire a token scoped to this specific child TSG
-        child_token = _get_child_token(child_tsg_id)
-        if not child_token:
-            print(f"        [{idx}/{total}] {tenant_name} — token acquisition failed, skipping.")
-            mu_map[cdl_id] = 0
-            continue
-
-        headers = {
-            "Authorization": f"Bearer {child_token}",
-            "Content-Type":  "application/json",
-            "Accept":        "application/json",
-            "X-PANW-Region": region,
-        }
-        try:
-            resp = requests.post(INSIGHTS_MU_URL, headers=headers, json=payload, timeout=120)
-            resp.raise_for_status()
-            data = resp.json().get("data", [{}])
-            count = int(data[0].get("user_count", 0)) if data else 0
-        except Exception as e:
-            print(f"        [{idx}/{total}] {tenant_name} — Insights API error: {e}")
-            count = 0
-
-        mu_map[cdl_id] = count
-        print(f"        [{idx}/{total}] {tenant_name} (region={region}) → user_count={count}")
-        if progress_callback is not None:
-            progress_callback(idx, total, tenant_name)
-
-    nonzero = sum(1 for v in mu_map.values() if v > 0)
-    print(f"      Done — {nonzero} tenant(s) with user_count > 0.")
-    return mu_map
-
-
-# ---------------------------------------------------------------------------
-# STEP 4 — Merge and write Excel workbook
+# STEP 4 — Write Excel workbook
 # ---------------------------------------------------------------------------
 
 # RN sheet: bandwidth columns use human-readable Mbps/Gbps labels
@@ -403,7 +312,7 @@ RN_COLUMNS = [
     "Utilization %",
 ]
 
-# MU sheet: user-count columns (no unit conversion needed)
+# MU sheet: license-unit columns
 MU_COLUMNS = [
     "Tenant Name",
     "TSG ID",
@@ -449,53 +358,45 @@ def _write_sheet(ws, columns: list[str], rows: list[list]) -> None:
 
 
 def write_xlsx(
-    util_records: list[dict],
-    name_map:     dict[str, str],
-    parent_map:   dict[str, str],
-    tsg_map:      dict[str, str],
-    mu_map:       dict[str, int],
-    output_file:  str,
+    records:    list[dict],
+    name_map:   dict[str, str],
+    output_file: str,
 ) -> None:
     """
-    Joins utilization records with hierarchy names and writes an Excel
-    workbook with two sheets: 'RN' and 'MU'.
+    Joins subscription-status records with the tenant hierarchy name_map
+    (keyed by each record's OWN tsg_id — the child tenant the data
+    belongs to, not the root TSG used to authenticate) and writes an
+    Excel workbook with two sheets: 'RN' and 'MU'.
 
-    RN sheet: bandwidth values converted from raw API units to Mbps/Gbps.
-      - license_units      is in Mbps  (license_unit field = "Mbps")
-      - license_units_used is in Kbps  (license_used_unit field = "Kbps")
-        → divide by 1000 to get Mbps, then format as Mbps or Gbps.
+    RN sheet: bandwidth values are in Mbps as returned by the API
+      (license_total / license_utilized), converted to Mbps/Gbps display.
 
-    MU sheet: user counts. License Units Consumed = muCount from
-      /mt/monitor/v1/agg/custom/license/setup/status (keyed by tsg_id),
-      because license_units_used is always 0 for MU in the utilization API.
+    MU sheet: license unit counts, taken directly from the
+      subscription-status API's license_total / license_utilized values
+      for the mobile_users instance.
     """
     print(f"Writing report to '{output_file}'...")
 
     rn_rows: list[list] = []
     mu_rows: list[list] = []
 
-    for rec in util_records:
-        cdl_id       = str(rec.get("sub_tenant_id", ""))
+    for rec in records:
+        tsg_id       = rec.get("tsg_id", "")
         product_type = rec.get("product_type", "N/A")
-
-        node_name = name_map.get(cdl_id, f"Unknown (CDL:{cdl_id})")
-        tsg_id    = tsg_map.get(cdl_id, "")
-        region    = rec.get("_region", "")
+        region       = rec.get("_region", "")
+        tenant_name  = name_map.get(tsg_id, f"Unknown (TSG:{tsg_id})")
 
         raw_util = rec.get("utilization_percentage")
         util_pct = round(float(raw_util), 1) if raw_util is not None else ""
 
         if product_type == "RN":
-            # Assigned: already in Mbps
             assigned_mbps = float(rec.get("license_units", 0) or 0)
-            # Skip tenants with no assigned bandwidth
             if assigned_mbps == 0:
                 continue
-            # Consumed: API returns Kbps → convert to Mbps
-            consumed_mbps = float(rec.get("license_units_used", 0) or 0) / 1000
+            consumed_mbps = float(rec.get("license_units_used", 0) or 0)
 
             rn_rows.append([
-                node_name,
+                tenant_name,
                 tsg_id,
                 region,
                 _fmt_bandwidth(assigned_mbps),
@@ -505,20 +406,16 @@ def write_xlsx(
 
         elif product_type == "MU":
             assigned_mu = float(rec.get("license_units", 0) or 0)
-            # Skip tenants with no assigned MU licenses
             if assigned_mu == 0:
                 continue
-            # user_count from Insights API (keyed by cdl_id)
-            consumed_mu = mu_map.get(cdl_id, 0)
-            # Compute utilization % from actual values (API always returns 0 for MU)
-            mu_util_pct = round(consumed_mu / assigned_mu * 100, 1) if assigned_mu else ""
+            consumed_mu = float(rec.get("license_units_used", 0) or 0)
             mu_rows.append([
-                node_name,
+                tenant_name,
                 tsg_id,
                 region,
                 int(assigned_mu),
-                consumed_mu,
-                mu_util_pct,
+                int(consumed_mu),
+                util_pct,
             ])
 
     wb = Workbook()
@@ -570,12 +467,19 @@ def run_report(
     main() below and by external callers such as a web frontend).
 
     Sets the module-level credential globals, runs the full pipeline
-    (auth -> hierarchy -> utilization -> MU counts -> xlsx write), and
+    (auth -> tenant hierarchy -> subscription status -> xlsx write) and
     returns the path to the generated .xlsx file.
 
-    If provided, progress_callback(idx, total, tenant_name) is forwarded
-    to fetch_mu_counts() (the slowest, per-tenant step) so a caller can
-    report live progress (e.g. for a web UI progress bar).
+    The report includes a row per child tenant that has MU or RN
+    license data — each entry's own "tsg_id" (from the subscription-
+    status API response) is joined against the tenant hierarchy to
+    resolve that child tenant's display name, so the "Tenant Name" and
+    "TSG ID" columns reflect the child tenant the license data actually
+    belongs to (not the root TSG used to authenticate).
+
+    If provided, progress_callback(idx, total, tenant_name) is invoked
+    once per resolved record (used by callers such as a web frontend
+    background job to report live progress).
 
     Raises RuntimeError (with a human-readable message) on any failure
     instead of calling sys.exit(), so callers embedding this in a
@@ -591,31 +495,26 @@ def run_report(
     if not token:
         raise RuntimeError("Could not obtain access token. Check credentials and TSG ID.")
 
-    name_map, parent_map, tsg_map = fetch_tenant_hierarchy(token)
-    util_records                  = fetch_license_utilization_all_regions(token)
+    name_map = fetch_tenant_hierarchy(token)
 
-    if not util_records:
-        raise RuntimeError("No utilization records returned — nothing to write.")
+    entries = fetch_subscription_status(token)
+    if not entries:
+        raise RuntimeError("No license subscription-status data found in any region.")
 
-    # Build list of (cdl_id, tsg_id, region) for MU tenants that have assigned licenses
-    mu_tenants: list[tuple[str, str, str]] = []
-    seen_cdl: set[str] = set()
-    for rec in util_records:
-        if rec.get("product_type") == "MU":
-            assigned = float(rec.get("license_units", 0) or 0)
-            cdl_id   = str(rec.get("sub_tenant_id", ""))
-            region   = rec.get("_region", ALL_REGIONS[0])
-            child_tsg_id = tsg_map.get(cdl_id, "")
-            if assigned > 0 and cdl_id and cdl_id not in seen_cdl and child_tsg_id:
-                seen_cdl.add(cdl_id)
-                mu_tenants.append((cdl_id, child_tsg_id, region))
+    records = build_license_records(entries)
+    if not records:
+        raise RuntimeError("No MU/RN license records with assigned units found.")
 
-    mu_map = fetch_mu_counts(mu_tenants, name_map, progress_callback)
+    total = len(records)
+    for idx, rec in enumerate(records, start=1):
+        tenant_name = name_map.get(rec.get("tsg_id", ""), f"Unknown (TSG:{rec.get('tsg_id', '')})")
+        if progress_callback is not None:
+            progress_callback(idx, total, tenant_name)
 
     datestamp   = datetime.date.today().strftime("%Y-%m-%d")
     output_file = f"prisma_tenant_license_report_{datestamp}.xlsx"
 
-    write_xlsx(util_records, name_map, parent_map, tsg_map, mu_map, output_file)
+    write_xlsx(records, name_map, output_file)
     print("\nReport complete.")
     return output_file
 

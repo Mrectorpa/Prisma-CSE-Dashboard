@@ -1,0 +1,33 @@
+{
+    "data": {
+        "instances": {
+            "mobile_users": [
+                {
+                    "end_date": 1848279736000,
+                    "license_total": 105000,
+                    "license_utilized": 109623.0,
+                    "tsg_id": "1947985383"
+                }
+            ],
+            "remote_networks": [
+                {
+                    "end_date": 1848279736000,
+                    "license_total": 500,
+                    "license_utilized": 21.80838,
+                    "tsg_id": "1947985383"
+                }
+            ],
+            "service_connections": [],
+            "pab": [
+                {
+                    "end_date": 1848279736000,
+                    "license_total": 105000,
+                    "license_utilized": 209637.0,
+                    "tsg_id": "1947985383"
+                }
+            ]
+        },
+        "total_entries": 3
+    },
+    "requestId": "4205038c-72da-4f80-b576-861a10f0f086"
+}
