@@ -49,7 +49,9 @@ cert-expiry-report/
 ├── run.py                 Local development entry point (Flask dev server)
 ├── wsgi.py                Production/IIS entry point (used by wfastcgi)
 ├── web.config              IIS + wfastcgi configuration
-└── README.md
+├── README.md
+├── DEPLOY_IIS.md           Full IIS/wfastcgi deployment walkthrough
+└── .gitignore
 ```
 
 ## Local development
@@ -67,91 +69,10 @@ and Client Secret.
 
 ## Deploying to IIS
 
-This app is deployed to IIS using [`wfastcgi`](https://pypi.org/project/wfastcgi/),
-Microsoft's supported bridge for running Python WSGI applications under
-IIS's FastCGI module.
-
-### 1. Prerequisites on the IIS server
-
-- Windows Server with IIS installed, including the **CGI** role service
-  (Server Manager → Add Roles and Features → Web Server (IIS) → Web
-  Server → Application Development → CGI).
-- A 64-bit Python 3.9+ install available to the IIS server (e.g.
-  `C:\Python311\python.exe`).
-
-### 2. Install dependencies
-
-Copy this `cert-expiry-report` folder to the server (e.g.
-`C:\inetpub\cert-expiry-report`), then:
-
-```powershell
-cd C:\inetpub\cert-expiry-report
-python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
-```
-
-### 3. Register wfastcgi with IIS
-
-From an elevated PowerShell/cmd prompt, with the venv activated:
-
-```powershell
-wfastcgi-enable
-```
-
-This prints a line similar to:
-
-```
-C:\inetpub\cert-expiry-report\.venv\Scripts\python.exe|C:\inetpub\cert-expiry-report\.venv\Lib\site-packages\wfastcgi.py
-```
-
-Copy that exact string - you'll need the two paths (`python.exe` and
-`wfastcgi.py`) for the next step.
-
-### 4. Update `web.config`
-
-Open `web.config` in this folder and replace the placeholders:
-
-- `scriptProcessor="C:\path\to\python.exe|C:\path\to\wfastcgi.py"` →
-  use the exact paths printed by `wfastcgi-enable` in step 3.
-- `<add key="PYTHONPATH" value="C:\path\to\cert-expiry-report" />` →
-  the full deployment path of this folder (e.g.
-  `C:\inetpub\cert-expiry-report`).
-
-Optionally set a stable `CERT_REPORT_SECRET_KEY` value (any random
-string) so Flask's secret key doesn't rotate on every app pool
-recycle.
-
-### 5. Create the IIS site/application
-
-In IIS Manager:
-
-1. Create a new **Application Pool** (e.g. `CertExpiryReportPool`) with
-   **.NET CLR version: No Managed Code**.
-2. Create a new **Website** or **Application** pointing its physical
-   path at this folder (e.g. `C:\inetpub\cert-expiry-report`), assigned
-   to the application pool created above.
-3. Ensure the application pool's identity has read access to this
-   folder (and, if using a venv, to the venv's `site-packages`).
-4. Browse to the site. You should see the Client ID / Client Secret
-   form.
-
-### 6. Troubleshooting
-
-- **500.0 errors on load**: check that `WSGI_HANDLER`, the
-  `scriptProcessor` paths, and `PYTHONPATH` in `web.config` exactly
-  match your Python/venv install paths.
-- **Report generation errors**: application logs go to stdout/stderr,
-  which IIS's FastCGI module typically writes to the Application Pool's
-  configured error log location, or can be captured via
-  `stderr` mode diagnostics in `wfastcgi` (`WSGI_LOG` app setting can be
-  added to `web.config` to write logs to a file, e.g.
-  `<add key="WSGI_LOG" value="C:\inetpub\cert-expiry-report\logs\wfastcgi.log" />`).
-- **Auth/token failures for specific tenants**: these are logged and
-  the tenant is skipped automatically - the overall report still
-  generates using every tenant that succeeded. Check the logs for
-  `Skipping tenant ... due to error` messages to identify which
-  tenants failed and why (e.g. missing delegated access).
+For full step-by-step IIS/wfastcgi deployment instructions (prerequisites,
+`web.config` setup, IIS site/application pool configuration, HTTPS,
+troubleshooting, and update procedures), see
+[`DEPLOY_IIS.md`](DEPLOY_IIS.md).
 
 ## Security notes
 
