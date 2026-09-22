@@ -1,0 +1,147 @@
+{
+    "header": {
+        "createdAt": "2026-06-02T21:00:02Z",
+        "dataCount": 21,
+        "requestId": "b042f437-fc8b-42c3-9819-0184197fccc7",
+        "clientRequestId": "868b9942-94a0-4f1b-b845-c16e25bf250e",
+        "isResourceDataOverridden": false,
+        "fieldList": [
+            {
+                "property": "node_type",
+                "alias": "node_type",
+                "dataType": "integer",
+                "dataClass": "integer",
+                "sequence": "1",
+                "type": "integer"
+            },
+            {
+                "property": "sub_tenant_id",
+                "alias": "sub_tenant_id",
+                "dataType": "string",
+                "dataClass": "string",
+                "sequence": "2",
+                "type": "string"
+            },
+            {
+                "property": "count",
+                "alias": "count",
+                "dataType": "integer",
+                "dataClass": "integer",
+                "sequence": "3",
+                "type": "integer"
+            }
+        ],
+        "status": {
+            "subCode": 200
+        },
+        "name": "site_current_status",
+        "cache_operation": "IGNORED"
+    },
+    "data": [
+        {
+            "node_type": 48,
+            "sub_tenant_id": "1296027147",
+            "count": 13
+        },
+        {
+            "node_type": 48,
+            "sub_tenant_id": "1374275531",
+            "count": 2
+        },
+        {
+            "node_type": 48,
+            "sub_tenant_id": "1402000965",
+            "count": 177
+        },
+        {
+            "node_type": 48,
+            "sub_tenant_id": "1847147634",
+            "count": 3
+        },
+        {
+            "node_type": 48,
+            "sub_tenant_id": "384889040",
+            "count": 209
+        },
+        {
+            "node_type": 48,
+            "sub_tenant_id": "822089764",
+            "count": 2
+        },
+        {
+            "node_type": 49,
+            "sub_tenant_id": "822089764",
+            "count": 1
+        },
+        {
+            "node_type": 49,
+            "sub_tenant_id": "1158832248",
+            "count": 1
+        },
+        {
+            "node_type": 49,
+            "sub_tenant_id": "1596139891",
+            "count": 1
+        },
+        {
+            "node_type": 48,
+            "sub_tenant_id": "1622864233",
+            "count": 3
+        },
+        {
+            "node_type": 48,
+            "sub_tenant_id": "1873693889",
+            "count": 3
+        },
+        {
+            "node_type": 48,
+            "sub_tenant_id": "1131193629",
+            "count": 3
+        },
+        {
+            "node_type": 48,
+            "sub_tenant_id": "1158832248",
+            "count": 7
+        },
+        {
+            "node_type": 48,
+            "sub_tenant_id": "1883511226",
+            "count": 3
+        },
+        {
+            "node_type": 49,
+            "sub_tenant_id": "1331266193",
+            "count": 1
+        },
+        {
+            "node_type": 48,
+            "sub_tenant_id": "1335142645",
+            "count": 3
+        },
+        {
+            "node_type": 49,
+            "sub_tenant_id": "1374275531",
+            "count": 1
+        },
+        {
+            "node_type": 48,
+            "sub_tenant_id": "1549943668",
+            "count": 3
+        },
+        {
+            "node_type": 49,
+            "sub_tenant_id": "1070293802",
+            "count": 1
+        },
+        {
+            "node_type": 49,
+            "sub_tenant_id": "1296027147",
+            "count": 1
+        },
+        {
+            "node_type": 49,
+            "sub_tenant_id": "1773563359",
+            "count": 1
+        }
+    ]
+}

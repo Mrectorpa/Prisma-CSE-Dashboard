@@ -1,0 +1,7 @@
+Flask>=2.3,<3.0
+requests>=2.31,<3.0
+openpyxl>=3.1,<4.0
+
+# Only required when deploying to IIS on Windows via wfastcgi.
+# Not needed for local development with `python run.py`.
+wfastcgi>=3.0

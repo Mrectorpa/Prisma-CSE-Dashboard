@@ -1,0 +1,21 @@
+# Python virtual environments - never commit these (they contain
+# platform-specific binaries/symlinks and can break git indexing).
+.venv/
+venv/
+env/
+ENV/
+
+# Python bytecode / cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Editor/OS cruft
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+.DS_Store
+
+# Generated reports (contain no source code and are user-specific output)
+Certificate_Report_*.xlsx

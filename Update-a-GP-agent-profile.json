@@ -1,0 +1,25 @@
+{
+    "_errors": [
+        {
+            "code": "API_I00013",
+            "message": "Your configuration is not valid. Please review the error message for more details.",
+            "details": {
+                "errorType": "Invalid Object",
+                "message": [
+                    " Always On - COA-ALL-TES -> gateways -> external -> list -> US-RUW-ALL -> choice unexpected node here",
+                    " Always On - COA-ALL-TES -> gateways -> external -> list is invalid"
+                ],
+                "errors": [
+                    {
+                        "type": "UNEXPECTED_NODE_ERROR",
+                        "message": "unexpected node here",
+                        "params": [
+                            "choice"
+                        ]
+                    }
+                ]
+            }
+        }
+    ],
+    "_request_id": "fb7b2055-b2d5-412c-aab1-d41b64829dcf"
+}

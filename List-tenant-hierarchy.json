@@ -1,0 +1,962 @@
+{
+    "data": [
+        {
+            "cdlTenantId": "1436492296",
+            "children": [
+                {
+                    "cdlTenantId": "1402000965",
+                    "children": [],
+                    "display_name": "US MF Guest",
+                    "featuresEnabled": [],
+                    "featuresSupported": [],
+                    "hasSELicense": false,
+                    "id": "1604685921",
+                    "license": [
+                        "CDL",
+                        "PA"
+                    ],
+                    "license_activated": true,
+                    "parent_id": "1602436186",
+                    "region": [
+                        "americas"
+                    ],
+                    "sdwanRegion": [],
+                    "tenantLicenseType": "PA_ONLY",
+                    "vertical": ""
+                },
+                {
+                    "cdlTenantId": "",
+                    "children": [
+                        {
+                            "cdlTenantId": "1374275531",
+                            "children": [],
+                            "display_name": "Arlington MRE",
+                            "featuresEnabled": [],
+                            "featuresSupported": [],
+                            "hasSELicense": false,
+                            "id": "1690653551",
+                            "license": [
+                                "CDL",
+                                "PA"
+                            ],
+                            "license_activated": true,
+                            "parent_id": "1090911908",
+                            "region": [
+                                "americas"
+                            ],
+                            "sdwanRegion": [],
+                            "tenantLicenseType": "PA_ONLY",
+                            "vertical": ""
+                        },
+                        {
+                            "cdlTenantId": "1847147634",
+                            "children": [],
+                            "display_name": "Arlington Shared",
+                            "featuresEnabled": [],
+                            "featuresSupported": [],
+                            "hasSELicense": false,
+                            "id": "1993793605",
+                            "license": [
+                                "CDL",
+                                "PA"
+                            ],
+                            "license_activated": true,
+                            "parent_id": "1090911908",
+                            "region": [
+                                "americas"
+                            ],
+                            "sdwanRegion": [],
+                            "tenantLicenseType": "PA_ONLY",
+                            "vertical": ""
+                        }
+                    ],
+                    "display_name": "Arlington",
+                    "featuresEnabled": [],
+                    "featuresSupported": [],
+                    "hasSELicense": false,
+                    "id": "1090911908",
+                    "license": [],
+                    "license_activated": false,
+                    "parent_id": "1602436186",
+                    "region": [
+                        "americas"
+                    ],
+                    "sdwanRegion": [],
+                    "tenantLicenseType": "PA_ONLY",
+                    "vertical": ""
+                },
+                {
+                    "cdlTenantId": "1331266193",
+                    "children": [],
+                    "display_name": "Prisma Access Browser POC",
+                    "featuresEnabled": [],
+                    "featuresSupported": [],
+                    "hasSELicense": false,
+                    "id": "1225559753",
+                    "license": [
+                        "CDL",
+                        "PA"
+                    ],
+                    "license_activated": true,
+                    "parent_id": "1602436186",
+                    "region": [
+                        "americas"
+                    ],
+                    "sdwanRegion": [],
+                    "tenantLicenseType": "PA_ONLY",
+                    "vertical": ""
+                },
+                {
+                    "cdlTenantId": "1229286122",
+                    "children": [],
+                    "display_name": "Deloitte LAB - Private Access",
+                    "featuresEnabled": [],
+                    "featuresSupported": [],
+                    "hasSELicense": false,
+                    "id": "1476986718",
+                    "license": [
+                        "CDL",
+                        "PA"
+                    ],
+                    "license_activated": true,
+                    "parent_id": "1602436186",
+                    "region": [
+                        "americas"
+                    ],
+                    "sdwanRegion": [],
+                    "tenantLicenseType": "PA_ONLY"
+                },
+                {
+                    "cdlTenantId": "",
+                    "children": [
+                        {
+                            "cdlTenantId": "1426969715",
+                            "children": [],
+                            "display_name": "Senden SBC",
+                            "featuresEnabled": [],
+                            "featuresSupported": [],
+                            "hasSELicense": false,
+                            "id": "1647238425",
+                            "license": [
+                                "CDL",
+                                "PA"
+                            ],
+                            "license_activated": true,
+                            "parent_id": "1045007019",
+                            "region": [
+                                "de"
+                            ],
+                            "sdwanRegion": [],
+                            "tenantLicenseType": "PA_ONLY",
+                            "vertical": ""
+                        },
+                        {
+                            "cdlTenantId": "1121712621",
+                            "children": [],
+                            "display_name": "Senden Guest",
+                            "featuresEnabled": [],
+                            "featuresSupported": [],
+                            "hasSELicense": false,
+                            "id": "1088420019",
+                            "license": [
+                                "CDL",
+                                "PA"
+                            ],
+                            "license_activated": true,
+                            "parent_id": "1045007019",
+                            "region": [
+                                "de"
+                            ],
+                            "sdwanRegion": [],
+                            "tenantLicenseType": "PA_ONLY",
+                            "vertical": ""
+                        },
+                        {
+                            "cdlTenantId": "1663158856",
+                            "children": [],
+                            "display_name": "Senden WAN",
+                            "featuresEnabled": [],
+                            "featuresSupported": [],
+                            "hasSELicense": false,
+                            "id": "1779579365",
+                            "license": [
+                                "CDL",
+                                "PA"
+                            ],
+                            "license_activated": true,
+                            "parent_id": "1045007019",
+                            "region": [
+                                "de"
+                            ],
+                            "sdwanRegion": [],
+                            "tenantLicenseType": "PA_ONLY",
+                            "vertical": ""
+                        }
+                    ],
+                    "display_name": "EMEA",
+                    "featuresEnabled": [],
+                    "featuresSupported": [],
+                    "hasSELicense": false,
+                    "id": "1045007019",
+                    "license": [],
+                    "license_activated": false,
+                    "parent_id": "1602436186",
+                    "region": [
+                        "de"
+                    ],
+                    "sdwanRegion": [],
+                    "tenantLicenseType": "PA_ONLY",
+                    "vertical": ""
+                },
+                {
+                    "cdlTenantId": "1644438599",
+                    "children": [
+                        {
+                            "cdlTenantId": "1772817159",
+                            "children": [
+                                {
+                                    "cdlTenantId": "1191371267",
+                                    "children": [],
+                                    "display_name": "USI VPN-Firewall",
+                                    "featuresEnabled": [],
+                                    "featuresSupported": [],
+                                    "hasSELicense": false,
+                                    "id": "1246766416",
+                                    "license": [
+                                        "CDL"
+                                    ],
+                                    "license_activated": false,
+                                    "parent_id": "1409951664",
+                                    "region": [
+                                        "in"
+                                    ],
+                                    "sdwanRegion": [],
+                                    "vertical": ""
+                                }
+                            ],
+                            "display_name": "USI VPN",
+                            "featuresEnabled": [],
+                            "featuresSupported": [],
+                            "hasSELicense": false,
+                            "id": "1409951664",
+                            "license": [
+                                "CDL",
+                                "PA",
+                                "SDWAN"
+                            ],
+                            "license_activated": true,
+                            "parent_id": "1725521789",
+                            "region": [
+                                "in"
+                            ],
+                            "sdwanRegion": [
+                                "americas"
+                            ],
+                            "tenantLicenseType": "SASE",
+                            "vertical": ""
+                        },
+                        {
+                            "cdlTenantId": "",
+                            "children": [
+                                {
+                                    "cdlTenantId": "1243132568",
+                                    "children": [],
+                                    "display_name": "Anthem",
+                                    "featuresEnabled": [],
+                                    "featuresSupported": [],
+                                    "hasSELicense": false,
+                                    "id": "1381797500",
+                                    "license": [
+                                        "CDL",
+                                        "PA"
+                                    ],
+                                    "license_activated": true,
+                                    "parent_id": "1555616059",
+                                    "region": [
+                                        "in"
+                                    ],
+                                    "sdwanRegion": [],
+                                    "tenantLicenseType": "PA_ONLY",
+                                    "vertical": ""
+                                },
+                                {
+                                    "cdlTenantId": "1476537465",
+                                    "children": [],
+                                    "display_name": "BMO",
+                                    "featuresEnabled": [],
+                                    "featuresSupported": [],
+                                    "hasSELicense": false,
+                                    "id": "1407331337",
+                                    "license": [
+                                        "CDL",
+                                        "PA"
+                                    ],
+                                    "license_activated": true,
+                                    "parent_id": "1555616059",
+                                    "region": [
+                                        "in"
+                                    ],
+                                    "sdwanRegion": [],
+                                    "tenantLicenseType": "PA_ONLY",
+                                    "vertical": ""
+                                },
+                                {
+                                    "cdlTenantId": "1252774213",
+                                    "children": [],
+                                    "display_name": "FedEx",
+                                    "featuresEnabled": [],
+                                    "featuresSupported": [],
+                                    "hasSELicense": false,
+                                    "id": "1543512475",
+                                    "license": [
+                                        "CDL",
+                                        "PA"
+                                    ],
+                                    "license_activated": true,
+                                    "parent_id": "1555616059",
+                                    "region": [
+                                        "in"
+                                    ],
+                                    "sdwanRegion": [],
+                                    "tenantLicenseType": "PA_ONLY",
+                                    "vertical": ""
+                                },
+                                {
+                                    "cdlTenantId": "1529649437",
+                                    "children": [],
+                                    "display_name": "EPIC Shared",
+                                    "featuresEnabled": [],
+                                    "featuresSupported": [],
+                                    "hasSELicense": false,
+                                    "id": "1496515042",
+                                    "license": [
+                                        "CDL",
+                                        "PA"
+                                    ],
+                                    "license_activated": true,
+                                    "parent_id": "1555616059",
+                                    "region": [
+                                        "in"
+                                    ],
+                                    "sdwanRegion": [],
+                                    "tenantLicenseType": "PA_ONLY",
+                                    "vertical": ""
+                                },
+                                {
+                                    "cdlTenantId": "1126275175",
+                                    "children": [],
+                                    "display_name": "Travelers",
+                                    "featuresEnabled": [],
+                                    "featuresSupported": [],
+                                    "hasSELicense": false,
+                                    "id": "1141481309",
+                                    "license": [
+                                        "CDL",
+                                        "PA"
+                                    ],
+                                    "license_activated": true,
+                                    "parent_id": "1555616059",
+                                    "region": [
+                                        "in"
+                                    ],
+                                    "sdwanRegion": [],
+                                    "tenantLicenseType": "PA_ONLY",
+                                    "vertical": ""
+                                },
+                                {
+                                    "cdlTenantId": "1117333859",
+                                    "children": [],
+                                    "display_name": "KP EPIC",
+                                    "featuresEnabled": [],
+                                    "featuresSupported": [],
+                                    "hasSELicense": false,
+                                    "id": "1881642803",
+                                    "license": [
+                                        "CDL",
+                                        "PA"
+                                    ],
+                                    "license_activated": true,
+                                    "parent_id": "1555616059",
+                                    "region": [
+                                        "in"
+                                    ],
+                                    "sdwanRegion": [],
+                                    "tenantLicenseType": "PA_ONLY",
+                                    "vertical": ""
+                                },
+                                {
+                                    "cdlTenantId": "1292417715",
+                                    "children": [],
+                                    "display_name": "JPMC",
+                                    "featuresEnabled": [],
+                                    "featuresSupported": [],
+                                    "hasSELicense": false,
+                                    "id": "1258638192",
+                                    "license": [
+                                        "CDL",
+                                        "PA"
+                                    ],
+                                    "license_activated": true,
+                                    "parent_id": "1555616059",
+                                    "region": [
+                                        "in"
+                                    ],
+                                    "sdwanRegion": [],
+                                    "tenantLicenseType": "PA_ONLY",
+                                    "vertical": ""
+                                },
+                                {
+                                    "cdlTenantId": "1929875195",
+                                    "children": [],
+                                    "display_name": "KP Non-EPIC",
+                                    "featuresEnabled": [],
+                                    "featuresSupported": [],
+                                    "hasSELicense": false,
+                                    "id": "1266186750",
+                                    "license": [
+                                        "CDL",
+                                        "PA"
+                                    ],
+                                    "license_activated": true,
+                                    "parent_id": "1555616059",
+                                    "region": [
+                                        "in"
+                                    ],
+                                    "sdwanRegion": [],
+                                    "tenantLicenseType": "PA_ONLY",
+                                    "vertical": ""
+                                },
+                                {
+                                    "cdlTenantId": "1143389541",
+                                    "children": [],
+                                    "display_name": "Special Projects - Anywhere",
+                                    "featuresEnabled": [],
+                                    "featuresSupported": [],
+                                    "hasSELicense": false,
+                                    "id": "1687070337",
+                                    "license": [
+                                        "CDL",
+                                        "PA"
+                                    ],
+                                    "license_activated": true,
+                                    "parent_id": "1555616059",
+                                    "region": [
+                                        "in"
+                                    ],
+                                    "sdwanRegion": [],
+                                    "tenantLicenseType": "PA_ONLY",
+                                    "vertical": ""
+                                },
+                                {
+                                    "cdlTenantId": "1851552119",
+                                    "children": [],
+                                    "display_name": "CallHeers",
+                                    "featuresEnabled": [],
+                                    "featuresSupported": [],
+                                    "hasSELicense": false,
+                                    "id": "1303491867",
+                                    "license": [
+                                        "CDL",
+                                        "PA"
+                                    ],
+                                    "license_activated": true,
+                                    "parent_id": "1555616059",
+                                    "region": [
+                                        "in"
+                                    ],
+                                    "sdwanRegion": [],
+                                    "tenantLicenseType": "PA_ONLY",
+                                    "vertical": ""
+                                },
+                                {
+                                    "cdlTenantId": "1182155968",
+                                    "children": [],
+                                    "display_name": "Special Projects",
+                                    "featuresEnabled": [],
+                                    "featuresSupported": [],
+                                    "hasSELicense": false,
+                                    "id": "1685347182",
+                                    "license": [
+                                        "CDL",
+                                        "PA"
+                                    ],
+                                    "license_activated": true,
+                                    "parent_id": "1555616059",
+                                    "region": [
+                                        "in"
+                                    ],
+                                    "sdwanRegion": [],
+                                    "tenantLicenseType": "PA_ONLY",
+                                    "vertical": ""
+                                },
+                                {
+                                    "cdlTenantId": "1643934484",
+                                    "children": [],
+                                    "display_name": "ANL-SLM-WKD",
+                                    "featuresEnabled": [],
+                                    "featuresSupported": [],
+                                    "hasSELicense": false,
+                                    "id": "1814728329",
+                                    "license": [
+                                        "CDL",
+                                        "PA"
+                                    ],
+                                    "license_activated": true,
+                                    "parent_id": "1555616059",
+                                    "region": [
+                                        "in"
+                                    ],
+                                    "sdwanRegion": [],
+                                    "tenantLicenseType": "PA_ONLY",
+                                    "vertical": ""
+                                }
+                            ],
+                            "display_name": "USI ODC Networks",
+                            "featuresEnabled": [],
+                            "featuresSupported": [],
+                            "hasSELicense": false,
+                            "id": "1555616059",
+                            "license": [],
+                            "license_activated": false,
+                            "parent_id": "1725521789",
+                            "region": [
+                                "in"
+                            ],
+                            "sdwanRegion": [],
+                            "tenantLicenseType": "PA_ONLY",
+                            "vertical": ""
+                        }
+                    ],
+                    "display_name": "US India",
+                    "featuresEnabled": [],
+                    "featuresSupported": [],
+                    "hasSELicense": false,
+                    "id": "1725521789",
+                    "license": [
+                        "CDL",
+                        "PA"
+                    ],
+                    "license_activated": true,
+                    "parent_id": "1602436186",
+                    "region": [
+                        "in"
+                    ],
+                    "sdwanRegion": [
+                        "americas"
+                    ],
+                    "tenantLicenseType": "SASE",
+                    "vertical": ""
+                },
+                {
+                    "cdlTenantId": "70200230",
+                    "children": [],
+                    "display_name": "AI-RunTime-POV",
+                    "featuresEnabled": [],
+                    "featuresSupported": [],
+                    "hasSELicense": false,
+                    "id": "1701552743",
+                    "license": [
+                        "CDL"
+                    ],
+                    "license_activated": false,
+                    "parent_id": "1602436186",
+                    "region": [
+                        "americas"
+                    ],
+                    "sdwanRegion": [],
+                    "vertical": ""
+                },
+                {
+                    "cdlTenantId": "1773563359",
+                    "children": [],
+                    "display_name": "MVP",
+                    "featuresEnabled": [],
+                    "featuresSupported": [],
+                    "hasSELicense": false,
+                    "id": "1350106607",
+                    "license": [
+                        "CDL",
+                        "PA"
+                    ],
+                    "license_activated": true,
+                    "parent_id": "1602436186",
+                    "region": [
+                        "americas"
+                    ],
+                    "sdwanRegion": [],
+                    "tenantLicenseType": "PA_ONLY",
+                    "vertical": ""
+                },
+                {
+                    "cdlTenantId": "1070293802",
+                    "children": [],
+                    "display_name": "Deloitte LAB Tenant",
+                    "featuresEnabled": [],
+                    "featuresSupported": [],
+                    "hasSELicense": false,
+                    "id": "1573694232",
+                    "license": [
+                        "CDL",
+                        "PA"
+                    ],
+                    "license_activated": true,
+                    "parent_id": "1602436186",
+                    "region": [
+                        "americas"
+                    ],
+                    "sdwanRegion": [],
+                    "tenantLicenseType": "PA_ONLY",
+                    "vertical": ""
+                },
+                {
+                    "cdlTenantId": "",
+                    "children": [
+                        {
+                            "cdlTenantId": "",
+                            "children": [
+                                {
+                                    "cdlTenantId": "1131193629",
+                                    "children": [],
+                                    "display_name": "Northwell",
+                                    "featuresEnabled": [],
+                                    "featuresSupported": [],
+                                    "hasSELicense": false,
+                                    "id": "1695131508",
+                                    "license": [
+                                        "CDL",
+                                        "PA"
+                                    ],
+                                    "license_activated": true,
+                                    "parent_id": "1281736170",
+                                    "region": [
+                                        "americas"
+                                    ],
+                                    "sdwanRegion": [],
+                                    "tenantLicenseType": "PA_ONLY",
+                                    "vertical": ""
+                                },
+                                {
+                                    "cdlTenantId": "1883511226",
+                                    "children": [],
+                                    "display_name": "Monterfiore EPIC",
+                                    "featuresEnabled": [],
+                                    "featuresSupported": [],
+                                    "hasSELicense": false,
+                                    "id": "1589202381",
+                                    "license": [
+                                        "CDL",
+                                        "PA"
+                                    ],
+                                    "license_activated": true,
+                                    "parent_id": "1281736170",
+                                    "region": [
+                                        "americas"
+                                    ],
+                                    "sdwanRegion": [],
+                                    "tenantLicenseType": "PA_ONLY",
+                                    "vertical": ""
+                                },
+                                {
+                                    "cdlTenantId": "1335142645",
+                                    "children": [],
+                                    "display_name": "KP",
+                                    "featuresEnabled": [],
+                                    "featuresSupported": [],
+                                    "hasSELicense": false,
+                                    "id": "1083029670",
+                                    "license": [
+                                        "CDL",
+                                        "PA"
+                                    ],
+                                    "license_activated": true,
+                                    "parent_id": "1281736170",
+                                    "region": [
+                                        "americas"
+                                    ],
+                                    "sdwanRegion": [],
+                                    "tenantLicenseType": "PA_ONLY",
+                                    "vertical": ""
+                                },
+                                {
+                                    "cdlTenantId": "1873693889",
+                                    "children": [],
+                                    "display_name": "Novant",
+                                    "featuresEnabled": [],
+                                    "featuresSupported": [],
+                                    "hasSELicense": false,
+                                    "id": "1289622590",
+                                    "license": [
+                                        "CDL",
+                                        "PA"
+                                    ],
+                                    "license_activated": true,
+                                    "parent_id": "1281736170",
+                                    "region": [
+                                        "americas"
+                                    ],
+                                    "sdwanRegion": [],
+                                    "tenantLicenseType": "PA_ONLY",
+                                    "vertical": ""
+                                },
+                                {
+                                    "cdlTenantId": "1622864233",
+                                    "children": [],
+                                    "display_name": "Samsung",
+                                    "featuresEnabled": [],
+                                    "featuresSupported": [],
+                                    "hasSELicense": false,
+                                    "id": "1202618680",
+                                    "license": [
+                                        "CDL",
+                                        "PA"
+                                    ],
+                                    "license_activated": true,
+                                    "parent_id": "1281736170",
+                                    "region": [
+                                        "americas"
+                                    ],
+                                    "sdwanRegion": [],
+                                    "tenantLicenseType": "PA_ONLY",
+                                    "vertical": ""
+                                },
+                                {
+                                    "cdlTenantId": "1158832248",
+                                    "children": [],
+                                    "display_name": "Dextra - Non Epic",
+                                    "featuresEnabled": [],
+                                    "featuresSupported": [],
+                                    "hasSELicense": false,
+                                    "id": "1321388123",
+                                    "license": [
+                                        "CDL",
+                                        "PA"
+                                    ],
+                                    "license_activated": true,
+                                    "parent_id": "1281736170",
+                                    "region": [
+                                        "americas"
+                                    ],
+                                    "sdwanRegion": [],
+                                    "tenantLicenseType": "PA_ONLY",
+                                    "vertical": "Finance"
+                                },
+                                {
+                                    "cdlTenantId": "1549943668",
+                                    "children": [],
+                                    "display_name": "Ascension EPIC",
+                                    "featuresEnabled": [],
+                                    "featuresSupported": [],
+                                    "hasSELicense": false,
+                                    "id": "1983527711",
+                                    "license": [
+                                        "CDL",
+                                        "PA"
+                                    ],
+                                    "license_activated": true,
+                                    "parent_id": "1281736170",
+                                    "region": [
+                                        "americas"
+                                    ],
+                                    "sdwanRegion": [],
+                                    "tenantLicenseType": "PA_ONLY",
+                                    "vertical": ""
+                                }
+                            ],
+                            "display_name": "US ODC Networks",
+                            "featuresEnabled": [],
+                            "featuresSupported": [],
+                            "hasSELicense": false,
+                            "id": "1281736170",
+                            "license": [],
+                            "license_activated": false,
+                            "parent_id": "1468656773",
+                            "region": [
+                                "americas"
+                            ],
+                            "sdwanRegion": [],
+                            "tenantLicenseType": "PA_ONLY",
+                            "vertical": ""
+                        },
+                        {
+                            "cdlTenantId": "822089764",
+                            "children": [
+                                {
+                                    "cdlTenantId": "797600866",
+                                    "children": [],
+                                    "display_name": "US VPN-Firewall",
+                                    "featuresEnabled": [],
+                                    "featuresSupported": [],
+                                    "hasSELicense": false,
+                                    "id": "1179705705",
+                                    "license": [
+                                        "CDL"
+                                    ],
+                                    "license_activated": false,
+                                    "parent_id": "1947985383",
+                                    "region": [
+                                        "americas"
+                                    ],
+                                    "sdwanRegion": [],
+                                    "vertical": ""
+                                }
+                            ],
+                            "display_name": "US VPN",
+                            "featuresEnabled": [],
+                            "featuresSupported": [],
+                            "hasSELicense": false,
+                            "id": "1947985383",
+                            "license": [
+                                "CDL",
+                                "PA"
+                            ],
+                            "license_activated": true,
+                            "parent_id": "1468656773",
+                            "region": [
+                                "americas"
+                            ],
+                            "sdwanRegion": [],
+                            "tenantLicenseType": "PA_ONLY",
+                            "vertical": ""
+                        },
+                        {
+                            "cdlTenantId": "384889040",
+                            "children": [
+                                {
+                                    "cdlTenantId": "39826446",
+                                    "children": [],
+                                    "display_name": "Deloitte LLP US Firewall Logging Service",
+                                    "featuresEnabled": [],
+                                    "featuresSupported": [],
+                                    "hasSELicense": false,
+                                    "id": "1325594141",
+                                    "license": [
+                                        "CDL",
+                                        "PA"
+                                    ],
+                                    "license_activated": true,
+                                    "parent_id": "1351248577",
+                                    "region": [
+                                        "americas"
+                                    ],
+                                    "sdwanRegion": [],
+                                    "tenantLicenseType": "PA_ONLY",
+                                    "vertical": ""
+                                }
+                            ],
+                            "display_name": "US WAN",
+                            "featuresEnabled": [],
+                            "featuresSupported": [],
+                            "hasSELicense": false,
+                            "id": "1351248577",
+                            "license": [
+                                "CDL",
+                                "PA",
+                                "SDWAN"
+                            ],
+                            "license_activated": true,
+                            "parent_id": "1468656773",
+                            "region": [
+                                "americas"
+                            ],
+                            "sdwanRegion": [
+                                "americas"
+                            ],
+                            "tenantLicenseType": "SASE",
+                            "vertical": ""
+                        },
+                        {
+                            "cdlTenantId": "1296027147",
+                            "children": [],
+                            "display_name": "US Israel WAN_VPN",
+                            "featuresEnabled": [],
+                            "featuresSupported": [],
+                            "hasSELicense": false,
+                            "id": "1662769361",
+                            "license": [
+                                "CDL",
+                                "PA"
+                            ],
+                            "license_activated": true,
+                            "parent_id": "1468656773",
+                            "region": [
+                                "americas"
+                            ],
+                            "sdwanRegion": [],
+                            "tenantLicenseType": "PA_ONLY",
+                            "vertical": ""
+                        }
+                    ],
+                    "display_name": "US MF",
+                    "featuresEnabled": [],
+                    "featuresSupported": [],
+                    "hasSELicense": false,
+                    "id": "1468656773",
+                    "license": [
+                        "SDWAN"
+                    ],
+                    "license_activated": false,
+                    "parent_id": "1602436186",
+                    "region": [
+                        "americas"
+                    ],
+                    "sdwanRegion": [
+                        "americas"
+                    ],
+                    "tenantLicenseType": "PA_SDWAN",
+                    "vertical": ""
+                },
+                {
+                    "cdlTenantId": "1596139891",
+                    "children": [],
+                    "display_name": "Deloitte LAB - GP Staging",
+                    "featuresEnabled": [],
+                    "featuresSupported": [],
+                    "hasSELicense": false,
+                    "id": "1277947925",
+                    "license": [
+                        "CDL",
+                        "PA"
+                    ],
+                    "license_activated": true,
+                    "parent_id": "1602436186",
+                    "region": [
+                        "americas"
+                    ],
+                    "sdwanRegion": [],
+                    "tenantLicenseType": "PA_ONLY",
+                    "vertical": ""
+                }
+            ],
+            "display_name": "DT US Member Firm",
+            "featuresEnabled": [],
+            "featuresSupported": [],
+            "hasSELicense": false,
+            "id": "1602436186",
+            "license": [
+                "CDL",
+                "PA",
+                "SDWAN"
+            ],
+            "license_activated": true,
+            "parent_id": "1884217747",
+            "region": [
+                "americas",
+                "de",
+                "in"
+            ],
+            "sdwanRegion": [
+                "americas"
+            ],
+            "tenantLicenseType": "SASE",
+            "vertical": ""
+        }
+    ],
+    "header": {
+        "createdAt": "2026-06-02T21:03:44Z",
+        "clientRequestId": "5e5366de-19ad-44db-aa5e-7e36c1847514",
+        "dataCount": 45,
+        "status": {
+            "subCode": 200
+        }
+    }
+}

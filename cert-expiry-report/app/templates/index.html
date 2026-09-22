@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate Expiry Report</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <main class="container">
+        <h1>Prisma SASE Certificate Expiry Report</h1>
+        <p class="subtitle">
+            Scans the parent tenant and all child tenants for
+            <strong>Mobile Users</strong> certificates expiring within the
+            next 90 days, and generates a spreadsheet with one tab per
+            tenant.
+        </p>
+
+        <form id="report-form">
+            <div class="form-group">
+                <label for="client_id">Client ID</label>
+                <input type="text" id="client_id" name="client_id" autocomplete="off" required>
+            </div>
+
+            <div class="form-group">
+                <label for="client_secret">Client Secret</label>
+                <input type="password" id="client_secret" name="client_secret" autocomplete="off" required>
+            </div>
+
+            <button type="submit" id="submit-btn">Generate Report</button>
+        </form>
+
+        <div id="loading" class="loading hidden">
+            <div class="spinner"></div>
+            <p>Generating report&hellip; this may take a minute or two while every tenant is scanned.</p>
+        </div>
+
+        <div id="js-error" class="alert alert-error hidden"></div>
+
+        <p class="legend">
+            <span class="dot dot-expired"></span> Expired
+            &nbsp;&nbsp;
+            <span class="dot dot-red"></span> &le; 30 days
+            &nbsp;&nbsp;
+            <span class="dot dot-yellow"></span> 31&ndash;60 days
+            &nbsp;&nbsp;
+            <span class="dot dot-green"></span> 61&ndash;90 days
+        </p>
+
+        <p class="privacy-note">
+            Your Client ID and Client Secret are used only for this request
+            and are never stored or logged.
+        </p>
+    </main>
+
+    <script>
+        (function () {
+            var form = document.getElementById('report-form');
+            var submitBtn = document.getElementById('submit-btn');
+            var loading = document.getElementById('loading');
+            var errorBox = document.getElementById('js-error');
+
+            function showError(message) {
+                errorBox.textContent = message;
+                errorBox.classList.remove('hidden');
+            }
+
+            function hideError() {
+                errorBox.classList.add('hidden');
+                errorBox.textContent = '';
+            }
+
+            function setBusy(isBusy) {
+                submitBtn.disabled = isBusy;
+                loading.classList.toggle('hidden', !isBusy);
+            }
+
+            function extractFilename(contentDisposition, fallback) {
+                if (!contentDisposition) {
+                    return fallback;
+                }
+                var match = contentDisposition.match(/filename="?([^";]+)"?/i);
+                return match ? match[1] : fallback;
+            }
+
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+                hideError();
+                setBusy(true);
+
+                var formData = new FormData(form);
+                var endpoint = "{{ url_for('report.generate') }}";
+
+                fetch(endpoint, {
+                    method: 'POST',
+                    body: formData,
+                })
+                    .then(function (response) {
+                        var contentType = response.headers.get('Content-Type') || '';
+
+                        if (contentType.indexOf('application/json') !== -1) {
+                            // Any JSON response represents either an error, or the
+                            // "no reportable certificates found" informational case.
+                            return response.json().then(function (data) {
+                                throw new Error(data.error || 'An unknown error occurred.');
+                            });
+                        }
+
+                        if (!response.ok) {
+                            throw new Error('The server returned an unexpected error (HTTP ' + response.status + ').');
+                        }
+
+                        var filename = extractFilename(
+                            response.headers.get('Content-Disposition'),
+                            'Certificate_Report.xlsx'
+                        );
+
+                        return response.blob().then(function (blob) {
+                            return { blob: blob, filename: filename };
+                        });
+                    })
+                    .then(function (result) {
+                        var url = window.URL.createObjectURL(result.blob);
+                        var link = document.createElement('a');
+                        link.href = url;
+                        link.download = result.filename;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        window.URL.revokeObjectURL(url);
+                    })
+                    .catch(function (err) {
+                        showError(err.message || 'An unexpected error occurred while generating the report.');
+                    })
+                    .finally(function () {
+                        setBusy(false);
+                    });
+            });
+        })();
+    </script>
+</body>
+</html>

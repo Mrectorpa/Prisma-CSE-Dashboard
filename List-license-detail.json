@@ -1,0 +1,355 @@
+[
+    {
+        "app_id": "prisma_access_edition",
+        "claim_at": "2023-07-12T00:45:07.486Z",
+        "claim_by": "kknapp@deloitte.com",
+        "license_id": "75e5qq6ruvgm7dc6vhd1o",
+        "licenses": [
+            {
+                "app_id": "prisma_access_edition",
+                "purchased_size": 151000,
+                "license_type": "GBL-MU-ENT",
+                "remaining_size": 0,
+                "license_expiration": "2025-07-22T19:05:18"
+            },
+            {
+                "app_id": "prisma_access_edition",
+                "purchased_size": 170000,
+                "license_type": "GBL-RN-ENT",
+                "remaining_size": 0,
+                "license_expiration": "2025-07-22T19:05:18"
+            },
+            {
+                "app_id": "net_interconnect",
+                "purchased_size": 171000,
+                "license_type": "INRCNT",
+                "remaining_size": 171000,
+                "license_expiration": "2025-07-22T19:05:18"
+            },
+            {
+                "app_id": "customer_success",
+                "purchased_size": 1,
+                "license_type": "PA-SUCCESS-PREM",
+                "remaining_size": 1,
+                "license_expiration": "2025-07-22T19:05:18"
+            },
+            {
+                "app_id": "private_app_access_qty",
+                "purchased_size": 7,
+                "license_type": "PRIV-APPS-QTY",
+                "remaining_size": 0,
+                "license_expiration": "2025-07-22T19:05:18"
+            },
+            {
+                "app_id": "strata_cloud_manager",
+                "purchased_size": 151000,
+                "license_type": "MUSCMAIOPSPAE",
+                "remaining_size": 0,
+                "license_expiration": "2025-07-21T13:49:28"
+            },
+            {
+                "app_id": "strata_cloud_manager",
+                "purchased_size": 170000,
+                "license_type": "2025-07-21T13:49:28",
+                "remaining_size": 0
+            }
+        ]
+    },
+    {
+        "app_id": "logging_service",
+        "claim_at": "2023-07-12T00:45:07.486Z",
+        "claim_by": "kknapp@deloitte.com",
+        "license_id": "1fu0z4jb89lj7cs97932m",
+        "licenses": [
+            {
+                "app_id": "logging_service",
+                "remaining_size": 0
+            }
+        ]
+    },
+    {
+        "app_id": "logging_service",
+        "claim_at": "2023-08-01T19:08:05.566Z",
+        "claim_by": "mmisterek@paloaltonetworks.com",
+        "license_id": "glyx946w35s362ssubm30",
+        "licenses": [
+            {
+                "app_id": "logging_service",
+                "purchased_size": 25,
+                "license_type": "Production License",
+                "remaining_size": 4,
+                "license_expiration": "2026-01-17 09:01:23"
+            }
+        ]
+    },
+    {
+        "app_id": "prisma_access_edition",
+        "claim_at": "2023-08-01T19:08:05.567Z",
+        "claim_by": "mmisterek@paloaltonetworks.com",
+        "license_id": "ig1q2i96wkerx8qxzckpo",
+        "licenses": [
+            {
+                "app_id": "prisma_access_edition",
+                "purchased_size": 5000,
+                "license_type": "GBL-MU-ENT",
+                "remaining_size": 1000,
+                "license_expiration": "2026-01-17T09:01:23"
+            },
+            {
+                "app_id": "net_interconnect",
+                "purchased_size": 5000,
+                "license_type": "INRCNT",
+                "remaining_size": 0,
+                "license_expiration": "2026-01-17T09:01:23"
+            },
+            {
+                "app_id": "adem",
+                "purchased_size": 5000,
+                "license_type": "MUDEMPAE",
+                "remaining_size": 1000,
+                "license_expiration": "2026-01-17T09:01:23"
+            },
+            {
+                "app_id": "customer_success",
+                "purchased_size": 1,
+                "license_type": "PA-SUCCESS-PREM",
+                "remaining_size": 1,
+                "license_expiration": "2026-01-17T09:01:23"
+            },
+            {
+                "app_id": "prisma_access_edition",
+                "purchased_size": 5000,
+                "license_type": "GBL-RN-ENT",
+                "remaining_size": 1000,
+                "license_expiration": "2026-01-17T09:01:23"
+            },
+            {
+                "app_id": "logging_service",
+                "purchased_size": 1000,
+                "license_type": "MUSLSPAE",
+                "remaining_size": 5000,
+                "license_expiration": "2025-08-01 00:00:00"
+            },
+            {
+                "app_id": "logging_service",
+                "purchased_size": 5000,
+                "license_type": "RNSLSPAE",
+                "remaining_size": 1000,
+                "license_expiration": "2025-08-01 00:00:00"
+            }
+        ]
+    },
+    {
+        "app_id": "logging_service",
+        "claim_at": "2024-04-04T04:54:26.252Z",
+        "claim_by": "kknapp@deloitte.com",
+        "license_id": "5t9ptybp3szjuh8b55wxw",
+        "licenses": [
+            {
+                "app_id": "logging_service",
+                "purchased_size": 588,
+                "license_type": "Production License",
+                "remaining_size": 0,
+                "license_expiration": "2029-01-30T18:41:43"
+            }
+        ]
+    },
+    {
+        "app_id": "logging_service",
+        "claim_at": "2024-04-23T13:10:44.902Z",
+        "claim_by": "mrector@paloaltonetworks.com",
+        "license_id": "sqg4pn9b49vlfs93aeauz",
+        "licenses": [
+            {
+                "app_id": "logging_service",
+                "purchased_size": 90,
+                "license_type": "Production License",
+                "remaining_size": 87,
+                "license_expiration": "2029-01-30 19:10:59"
+            }
+        ]
+    },
+    {
+        "app_id": "prisma_access_edition",
+        "claim_at": "2024-08-27T19:49:55.973Z",
+        "claim_by": "mmisterek@paloaltonetworks.com",
+        "license_id": "5dovq7pgh8vyvxlyp3aih",
+        "licenses": [
+            {
+                "app_id": "prisma_access_edition",
+                "purchased_size": 10000,
+                "license_type": "GBL-MU-ENT",
+                "remaining_size": 500,
+                "license_expiration": "2025-08-26T11:51:40"
+            },
+            {
+                "app_id": "net_interconnect",
+                "purchased_size": 20000,
+                "license_type": "INRCNT",
+                "remaining_size": 20000,
+                "license_expiration": "2025-08-26T11:51:40"
+            },
+            {
+                "app_id": "customer_success",
+                "purchased_size": 1,
+                "license_type": "PA-SUCCESS-STD",
+                "remaining_size": 1,
+                "license_expiration": "2025-08-26T11:51:40"
+            },
+            {
+                "app_id": "seb",
+                "purchased_size": 10000,
+                "license_type": "EVALSEBPAE",
+                "remaining_size": 8000,
+                "license_expiration": "2025-08-26T11:51:40"
+            },
+            {
+                "app_id": "add_pra",
+                "purchased_size": 0,
+                "license_type": "EVALPRAPAE",
+                "remaining_size": 19600,
+                "license_expiration": "2025-08-26T11:51:40"
+            },
+            {
+                "app_id": "prisma_access_edition",
+                "purchased_size": 10000,
+                "license_type": "GBL-RN-ENT",
+                "remaining_size": 0,
+                "license_expiration": "2025-08-26T11:51:40"
+            },
+            {
+                "app_id": "logging_service",
+                "purchased_size": 10000,
+                "license_type": "MUSLSPAE",
+                "remaining_size": 500,
+                "license_expiration": "2025-08-01 00:00:00"
+            },
+            {
+                "app_id": "logging_service",
+                "purchased_size": 10000,
+                "license_type": "RNSLSPAE",
+                "remaining_size": 500,
+                "license_expiration": "2025-08-01 00:00:00"
+            }
+        ]
+    },
+    {
+        "app_id": "logging_service",
+        "claim_at": "2024-08-27T19:49:55.972Z",
+        "claim_by": "mmisterek@paloaltonetworks.com",
+        "license_id": "5eza6v3bihzt0thpi4oew",
+        "licenses": [
+            {
+                "app_id": "logging_service",
+                "purchased_size": 30,
+                "license_type": "Production License",
+                "remaining_size": 5,
+                "license_expiration": "2025-08-26 11:51:40"
+            }
+        ]
+    },
+    {
+        "app_id": "logging_service",
+        "license_id": "302hxetbbbb1ytzwg0670",
+        "licenses": [
+            {
+                "app_id": "logging_service",
+                "purchased_size": 2190148,
+                "license_type": "SCM",
+                "license_expiration": "2029-11-11 07:33:46"
+            }
+        ]
+    },
+    {
+        "app_id": "prisma_access_edition",
+        "claim_at": "2025-02-03T18:00:50.783Z",
+        "claim_by": "mmisterek@paloaltonetworks.com",
+        "license_id": "c837lwfbbbgebkovei3yg",
+        "licenses": [
+            {
+                "app_id": "prisma_access_edition",
+                "purchased_size": 200000,
+                "license_type": "GBL-RN-ENT",
+                "remaining_size": 18550,
+                "license_expiration": "2028-07-27T03:02:16"
+            },
+            {
+                "app_id": "prisma_access_edition",
+                "purchased_size": 200000,
+                "license_type": "GBL-MU-ENT",
+                "remaining_size": 9050,
+                "license_expiration": "2028-07-27T03:02:16"
+            },
+            {
+                "app_id": "net_interconnect",
+                "purchased_size": 200000,
+                "license_type": "INRCNT",
+                "remaining_size": 200000,
+                "license_expiration": "2028-07-27T03:02:16"
+            },
+            {
+                "app_id": "private_app_access_qty",
+                "purchased_size": 25,
+                "license_type": "PRIV-APPS-QTY",
+                "remaining_size": 0,
+                "license_expiration": "2028-07-27T03:02:16"
+            },
+            {
+                "app_id": "customer_success",
+                "purchased_size": 1,
+                "license_type": "PA-SUCCESS-PREM",
+                "remaining_size": 1,
+                "license_expiration": "2028-07-27T03:02:16"
+            },
+            {
+                "app_id": "add_colo_connect",
+                "purchased_size": 8,
+                "license_type": "COLOCNCT10GPAE",
+                "remaining_size": 0,
+                "license_expiration": "2028-07-27T03:02:16"
+            },
+            {
+                "app_id": "seb",
+                "purchased_size": 200000,
+                "license_type": "SEBPAE",
+                "remaining_size": 9600,
+                "license_expiration": "2028-07-27T03:02:16"
+            },
+            {
+                "app_id": "strata_cloud_manager",
+                "purchased_size": 200000,
+                "license_type": "MUSCMAIOPSPAE",
+                "remaining_size": 300,
+                "license_expiration": "2028-07-27T03:02:16"
+            },
+            {
+                "app_id": "strata_cloud_manager",
+                "purchased_size": 200000,
+                "license_type": "RNSCMAIOPSPAE",
+                "remaining_size": 18550,
+                "license_expiration": "2028-07-27T03:02:16"
+            },
+            {
+                "app_id": "add_pra",
+                "purchased_size": 10000,
+                "license_type": "PRAPAE",
+                "remaining_size": 11000,
+                "license_expiration": "2028-07-27T03:02:16"
+            },
+            {
+                "app_id": "add_app_sec",
+                "purchased_size": 351000,
+                "license_type": "EVALMUAPPSECPAE",
+                "remaining_size": 351000,
+                "license_expiration": "2026-04-17T13:29:29"
+            },
+            {
+                "app_id": "add_app_sec",
+                "purchased_size": 370000,
+                "license_type": "EVALNETAPPSECPAE",
+                "remaining_size": 370000,
+                "license_expiration": "2026-04-17T13:30:17"
+            }
+        ]
+    }
+]
