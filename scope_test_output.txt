@@ -1,0 +1,216 @@
+[DEBUG] token acquired: True
+[DEBUG-SCOPE-TEST] Testing header-based scoping for tenant 1351248577...
+[DEBUG] get_remote_networks tenant=1351248577 status=200
+[DEBUG] get_remote_networks tenant=1351248577 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1351248577 returned 0 remote networks
+[DEBUG-SCOPE-TEST] Header-based result count: 0
+[DEBUG-SCOPE-TEST] Minting a token scoped directly to tsg_id:1351248577...
+[DEBUG] get_remote_networks tenant=1351248577 status=200
+[DEBUG] get_remote_networks tenant=1351248577 body(first 500 chars)={"data":[{"id":"3ec5026b-5ddf-41e2-a317-6b7f9dfb2d67","name":"USDRHRT01","folder":"Remote Networks","protocol":{"bgp":{"enable":true,"peer_as":"65406","peer_ip_address":"172.22.0.25","local_ip_address":"172.22.0.26","originate_default_route":true,"secret":"-AQ==XOQc8k7fbK/fPOMi25Xw/BXwOuA=DKGGVCuq7dlT1gbbxr7dSetKdvW5Lkv7OTk6kn7o+Y4="}},"region":"us-southeast","license_type":"FWAAS-AGGREGATE","ipsec_tunnel":"USDRHRT01","spn_name":"us-southeast-yellowwood","ecmp_load_balancing":"disable","connecti
+[DEBUG] get_remote_networks tenant=1351248577 returned 200 remote networks
+[DEBUG-SCOPE-TEST] Token-scoped result count: 200
+[DEBUG-SCOPE-TEST] === END DIAGNOSTIC ===
+[DEBUG] get_tenants attempt1 url=https://api.sase.paloaltonetworks.com/mt/monitor/v1/tenants status=404
+[DEBUG] get_tenants attempt1 body(first 500 chars)=
+[DEBUG] get_tenants attempt2 url=https://api.sase.paloaltonetworks.com/tenancy/v1/tenant_service_groups status=200
+[DEBUG] get_tenants attempt2 body(first 500 chars)={"items":[{"id":"1701552743","display_name":"AI-RunTime-POV","parent_id":"1602436186","support_contact":"","inactivity_timeout":15,"scim_enabled":"false","idp_enabled":"true","local_enabled":"true"},{"id":"1814728329","display_name":"ANL-SLM-WKD","parent_id":"1555616059","support_contact":"","inactivity_timeout":15,"scim_enabled":"false","idp_enabled":"true","local_enabled":"true"},{"id":"1381797500","display_name":"Anthem","parent_id":"1555616059","support_contact":"","inactivity_timeout":15,"s
+[DEBUG] get_tenants attempt2 returned 46 items
+[DEBUG] total tenants discovered: 46
+[DEBUG] sample tenant record: {
+  "id": "1701552743",
+  "display_name": "AI-RunTime-POV",
+  "parent_id": "1602436186",
+  "support_contact": "",
+  "inactivity_timeout": 15,
+  "scim_enabled": "false",
+  "idp_enabled": "true",
+  "local_enabled": "true"
+}
+[!] 401 Unauthorized for https://api.gpcloudservice.com/getAddrList/latest. Key might be invalid or wrong endpoint.
+[!] 401 Unauthorized for https://api.prod.datapath.prismaaccess.com/getAddrList/latest. Key might be invalid or wrong endpoint.
+[*] Successfully retrieved IPs from https://api.prod6.datapath.prismaaccess.com/getAddrList/latest
+[DEBUG] total public IP entries: 0
+[DEBUG] processing tenant t_id=1701552743 t_name=AI-RunTime-POV
+[DEBUG] get_remote_networks tenant=1701552743 status=200
+[DEBUG] get_remote_networks tenant=1701552743 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1701552743 returned 0 remote networks
+[DEBUG] processing tenant t_id=1814728329 t_name=ANL-SLM-WKD
+[DEBUG] get_remote_networks tenant=1814728329 status=200
+[DEBUG] get_remote_networks tenant=1814728329 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1814728329 returned 0 remote networks
+[DEBUG] processing tenant t_id=1381797500 t_name=Anthem
+[DEBUG] get_remote_networks tenant=1381797500 status=200
+[DEBUG] get_remote_networks tenant=1381797500 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1381797500 returned 0 remote networks
+[DEBUG] processing tenant t_id=1090911908 t_name=Arlington
+[DEBUG] get_remote_networks tenant=1090911908 status=200
+[DEBUG] get_remote_networks tenant=1090911908 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1090911908 returned 0 remote networks
+[DEBUG] processing tenant t_id=1690653551 t_name=Arlington MRE
+[DEBUG] get_remote_networks tenant=1690653551 status=200
+[DEBUG] get_remote_networks tenant=1690653551 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1690653551 returned 0 remote networks
+[DEBUG] processing tenant t_id=1993793605 t_name=Arlington Shared
+[DEBUG] get_remote_networks tenant=1993793605 status=200
+[DEBUG] get_remote_networks tenant=1993793605 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1993793605 returned 0 remote networks
+[DEBUG] processing tenant t_id=1983527711 t_name=Ascension EPIC
+[DEBUG] get_remote_networks tenant=1983527711 status=200
+[DEBUG] get_remote_networks tenant=1983527711 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1983527711 returned 0 remote networks
+[DEBUG] processing tenant t_id=1407331337 t_name=BMO
+[DEBUG] get_remote_networks tenant=1407331337 status=200
+[DEBUG] get_remote_networks tenant=1407331337 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1407331337 returned 0 remote networks
+[DEBUG] processing tenant t_id=1303491867 t_name=CallHeers
+[DEBUG] get_remote_networks tenant=1303491867 status=200
+[DEBUG] get_remote_networks tenant=1303491867 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1303491867 returned 0 remote networks
+[DEBUG] processing tenant t_id=1277947925 t_name=Deloitte LAB - GP Staging
+[DEBUG] get_remote_networks tenant=1277947925 status=200
+[DEBUG] get_remote_networks tenant=1277947925 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1277947925 returned 0 remote networks
+[DEBUG] processing tenant t_id=1476986718 t_name=Deloitte LAB - Private Access
+[DEBUG] get_remote_networks tenant=1476986718 status=200
+[DEBUG] get_remote_networks tenant=1476986718 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1476986718 returned 0 remote networks
+[DEBUG] processing tenant t_id=1573694232 t_name=Deloitte LAB Tenant
+[DEBUG] get_remote_networks tenant=1573694232 status=200
+[DEBUG] get_remote_networks tenant=1573694232 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1573694232 returned 0 remote networks
+[DEBUG] processing tenant t_id=1325594141 t_name=Deloitte LLP US Firewall Logging Service
+[DEBUG] get_remote_networks tenant=1325594141 status=200
+[DEBUG] get_remote_networks tenant=1325594141 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1325594141 returned 0 remote networks
+[DEBUG] processing tenant t_id=1321388123 t_name=Dextra - Non Epic
+[DEBUG] get_remote_networks tenant=1321388123 status=200
+[DEBUG] get_remote_networks tenant=1321388123 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1321388123 returned 0 remote networks
+[DEBUG] processing tenant t_id=1602436186 t_name=DT US Member Firm
+[DEBUG] skipping tenant t_id=1602436186 (empty or matches root TSG_ID)
+[DEBUG] processing tenant t_id=1045007019 t_name=EMEA
+[DEBUG] get_remote_networks tenant=1045007019 status=200
+[DEBUG] get_remote_networks tenant=1045007019 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1045007019 returned 0 remote networks
+[DEBUG] processing tenant t_id=1496515042 t_name=EPIC Shared
+[DEBUG] get_remote_networks tenant=1496515042 status=200
+[DEBUG] get_remote_networks tenant=1496515042 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1496515042 returned 0 remote networks
+[DEBUG] processing tenant t_id=1543512475 t_name=FedEx
+[DEBUG] get_remote_networks tenant=1543512475 status=200
+[DEBUG] get_remote_networks tenant=1543512475 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1543512475 returned 0 remote networks
+[DEBUG] processing tenant t_id=1258638192 t_name=JPMC
+[DEBUG] get_remote_networks tenant=1258638192 status=200
+[DEBUG] get_remote_networks tenant=1258638192 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1258638192 returned 0 remote networks
+[DEBUG] processing tenant t_id=1083029670 t_name=KP
+[DEBUG] get_remote_networks tenant=1083029670 status=200
+[DEBUG] get_remote_networks tenant=1083029670 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1083029670 returned 0 remote networks
+[DEBUG] processing tenant t_id=1881642803 t_name=KP EPIC
+[DEBUG] get_remote_networks tenant=1881642803 status=200
+[DEBUG] get_remote_networks tenant=1881642803 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1881642803 returned 0 remote networks
+[DEBUG] processing tenant t_id=1266186750 t_name=KP Non-EPIC
+[DEBUG] get_remote_networks tenant=1266186750 status=200
+[DEBUG] get_remote_networks tenant=1266186750 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1266186750 returned 0 remote networks
+[DEBUG] processing tenant t_id=1589202381 t_name=Monterfiore EPIC
+[DEBUG] get_remote_networks tenant=1589202381 status=200
+[DEBUG] get_remote_networks tenant=1589202381 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1589202381 returned 0 remote networks
+[DEBUG] processing tenant t_id=1350106607 t_name=MVP
+[DEBUG] get_remote_networks tenant=1350106607 status=200
+[DEBUG] get_remote_networks tenant=1350106607 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1350106607 returned 0 remote networks
+[DEBUG] processing tenant t_id=1695131508 t_name=Northwell
+[DEBUG] get_remote_networks tenant=1695131508 status=200
+[DEBUG] get_remote_networks tenant=1695131508 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1695131508 returned 0 remote networks
+[DEBUG] processing tenant t_id=1289622590 t_name=Novant
+[DEBUG] get_remote_networks tenant=1289622590 status=200
+[DEBUG] get_remote_networks tenant=1289622590 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1289622590 returned 0 remote networks
+[DEBUG] processing tenant t_id=1225559753 t_name=Prisma Access Browser POC
+[DEBUG] get_remote_networks tenant=1225559753 status=200
+[DEBUG] get_remote_networks tenant=1225559753 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1225559753 returned 0 remote networks
+[DEBUG] processing tenant t_id=1202618680 t_name=Samsung
+[DEBUG] get_remote_networks tenant=1202618680 status=200
+[DEBUG] get_remote_networks tenant=1202618680 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1202618680 returned 0 remote networks
+[DEBUG] processing tenant t_id=1088420019 t_name=Senden Guest
+[DEBUG] get_remote_networks tenant=1088420019 status=200
+[DEBUG] get_remote_networks tenant=1088420019 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1088420019 returned 0 remote networks
+[DEBUG] processing tenant t_id=1647238425 t_name=Senden SBC
+[DEBUG] get_remote_networks tenant=1647238425 status=200
+[DEBUG] get_remote_networks tenant=1647238425 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1647238425 returned 0 remote networks
+[DEBUG] processing tenant t_id=1779579365 t_name=Senden WAN
+[DEBUG] get_remote_networks tenant=1779579365 status=200
+[DEBUG] get_remote_networks tenant=1779579365 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1779579365 returned 0 remote networks
+[DEBUG] processing tenant t_id=1685347182 t_name=Special Projects
+[DEBUG] get_remote_networks tenant=1685347182 status=200
+[DEBUG] get_remote_networks tenant=1685347182 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1685347182 returned 0 remote networks
+[DEBUG] processing tenant t_id=1687070337 t_name=Special Projects - Anywhere
+[DEBUG] get_remote_networks tenant=1687070337 status=200
+[DEBUG] get_remote_networks tenant=1687070337 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1687070337 returned 0 remote networks
+[DEBUG] processing tenant t_id=1882987769 t_name=TD Bank
+[DEBUG] get_remote_networks tenant=1882987769 status=200
+[DEBUG] get_remote_networks tenant=1882987769 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1882987769 returned 0 remote networks
+[DEBUG] processing tenant t_id=1141481309 t_name=Travelers
+[DEBUG] get_remote_networks tenant=1141481309 status=200
+[DEBUG] get_remote_networks tenant=1141481309 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1141481309 returned 0 remote networks
+[DEBUG] processing tenant t_id=1725521789 t_name=US India
+[DEBUG] get_remote_networks tenant=1725521789 status=200
+[DEBUG] get_remote_networks tenant=1725521789 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1725521789 returned 0 remote networks
+[DEBUG] processing tenant t_id=1662769361 t_name=US Israel WAN_VPN
+[DEBUG] get_remote_networks tenant=1662769361 status=200
+[DEBUG] get_remote_networks tenant=1662769361 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1662769361 returned 0 remote networks
+[DEBUG] processing tenant t_id=1468656773 t_name=US MF
+[DEBUG] get_remote_networks tenant=1468656773 status=200
+[DEBUG] get_remote_networks tenant=1468656773 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1468656773 returned 0 remote networks
+[DEBUG] processing tenant t_id=1604685921 t_name=US MF Guest
+[DEBUG] get_remote_networks tenant=1604685921 status=200
+[DEBUG] get_remote_networks tenant=1604685921 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1604685921 returned 0 remote networks
+[DEBUG] processing tenant t_id=1281736170 t_name=US ODC Networks
+[DEBUG] get_remote_networks tenant=1281736170 status=200
+[DEBUG] get_remote_networks tenant=1281736170 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1281736170 returned 0 remote networks
+[DEBUG] processing tenant t_id=1947985383 t_name=US VPN
+[DEBUG] get_remote_networks tenant=1947985383 status=200
+[DEBUG] get_remote_networks tenant=1947985383 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1947985383 returned 0 remote networks
+[DEBUG] processing tenant t_id=1179705705 t_name=US VPN-Firewall
+[DEBUG] get_remote_networks tenant=1179705705 status=200
+[DEBUG] get_remote_networks tenant=1179705705 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1179705705 returned 0 remote networks
+[DEBUG] processing tenant t_id=1351248577 t_name=US WAN
+[DEBUG] get_remote_networks tenant=1351248577 status=200
+[DEBUG] get_remote_networks tenant=1351248577 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1351248577 returned 0 remote networks
+[DEBUG] processing tenant t_id=1555616059 t_name=USI ODC Networks
+[DEBUG] get_remote_networks tenant=1555616059 status=200
+[DEBUG] get_remote_networks tenant=1555616059 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1555616059 returned 0 remote networks
+[DEBUG] processing tenant t_id=1409951664 t_name=USI VPN
+[DEBUG] get_remote_networks tenant=1409951664 status=200
+[DEBUG] get_remote_networks tenant=1409951664 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1409951664 returned 0 remote networks
+[DEBUG] processing tenant t_id=1246766416 t_name=USI VPN-Firewall
+[DEBUG] get_remote_networks tenant=1246766416 status=200
+[DEBUG] get_remote_networks tenant=1246766416 body(first 500 chars)={"data":[],"offset":0,"total":0,"limit":200}
+[DEBUG] get_remote_networks tenant=1246766416 returned 0 remote networks
+[DEBUG] total remote networks written across all tenants: 0
+[+] Task Complete. Data written to prisma_sase_inventory.csv

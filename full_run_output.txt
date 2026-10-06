@@ -1,0 +1,31 @@
+[*] Discovered 46 child tenants
+[*] ANL-SLM-WKD (1814728329): 4 remote networks
+[*] Anthem (1381797500): 11 remote networks
+[*] Arlington MRE (1690653551): 1 remote networks
+[*] Arlington Shared (1993793605): 2 remote networks
+[*] Ascension EPIC (1983527711): 2 remote networks
+[*] BMO (1407331337): 4 remote networks
+[*] CallHeers (1303491867): 10 remote networks
+[*] Dextra - Non Epic (1321388123): 6 remote networks
+[*] EPIC Shared (1496515042): 29 remote networks
+[*] FedEx (1543512475): 2 remote networks
+[*] JPMC (1258638192): 2 remote networks
+[*] KP (1083029670): 2 remote networks
+[*] KP EPIC (1881642803): 11 remote networks
+[*] KP Non-EPIC (1266186750): 4 remote networks
+[*] Monterfiore EPIC (1589202381): 2 remote networks
+[*] Northwell (1695131508): 2 remote networks
+[*] Novant (1289622590): 2 remote networks
+[*] Samsung (1202618680): 2 remote networks
+[*] Senden Guest (1088420019): 2 remote networks
+[*] Senden WAN (1779579365): 2 remote networks
+[*] Special Projects (1685347182): 22 remote networks
+[*] Special Projects - Anywhere (1687070337): 7 remote networks
+[*] TD Bank (1882987769): 5 remote networks
+[*] Travelers (1141481309): 4 remote networks
+[*] US Israel WAN_VPN (1662769361): 13 remote networks
+[*] US MF Guest (1604685921): 192 remote networks
+[*] US VPN (1947985383): 2 remote networks
+[*] US WAN (1351248577): 209 remote networks
+[*] USI VPN (1409951664): 58 remote networks
+[+] Task Complete. 614 remote networks (1050 tunnel rows) across 46 tenants written to prisma_sase_inventory.csv

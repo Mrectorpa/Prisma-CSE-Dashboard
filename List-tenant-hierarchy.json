@@ -13,9 +13,11 @@
                     "id": "1604685921",
                     "license": [
                         "CDL",
-                        "PA"
+                        "PA",
+                        "PAB_ADDON"
                     ],
                     "license_activated": true,
+                    "originalRegion": "",
                     "parent_id": "1602436186",
                     "region": [
                         "americas"
@@ -40,6 +42,7 @@
                                 "PA"
                             ],
                             "license_activated": true,
+                            "originalRegion": "",
                             "parent_id": "1090911908",
                             "region": [
                                 "americas"
@@ -61,6 +64,7 @@
                                 "PA"
                             ],
                             "license_activated": true,
+                            "originalRegion": "",
                             "parent_id": "1090911908",
                             "region": [
                                 "americas"
@@ -77,6 +81,7 @@
                     "id": "1090911908",
                     "license": [],
                     "license_activated": false,
+                    "originalRegion": "",
                     "parent_id": "1602436186",
                     "region": [
                         "americas"
@@ -95,9 +100,11 @@
                     "id": "1225559753",
                     "license": [
                         "CDL",
-                        "PA"
+                        "PA",
+                        "PAB_ADDON"
                     ],
                     "license_activated": true,
+                    "originalRegion": "",
                     "parent_id": "1602436186",
                     "region": [
                         "americas"
@@ -105,26 +112,6 @@
                     "sdwanRegion": [],
                     "tenantLicenseType": "PA_ONLY",
                     "vertical": ""
-                },
-                {
-                    "cdlTenantId": "1229286122",
-                    "children": [],
-                    "display_name": "Deloitte LAB - Private Access",
-                    "featuresEnabled": [],
-                    "featuresSupported": [],
-                    "hasSELicense": false,
-                    "id": "1476986718",
-                    "license": [
-                        "CDL",
-                        "PA"
-                    ],
-                    "license_activated": true,
-                    "parent_id": "1602436186",
-                    "region": [
-                        "americas"
-                    ],
-                    "sdwanRegion": [],
-                    "tenantLicenseType": "PA_ONLY"
                 },
                 {
                     "cdlTenantId": "",
@@ -142,6 +129,7 @@
                                 "PA"
                             ],
                             "license_activated": true,
+                            "originalRegion": "",
                             "parent_id": "1045007019",
                             "region": [
                                 "de"
@@ -163,6 +151,7 @@
                                 "PA"
                             ],
                             "license_activated": true,
+                            "originalRegion": "",
                             "parent_id": "1045007019",
                             "region": [
                                 "de"
@@ -184,6 +173,7 @@
                                 "PA"
                             ],
                             "license_activated": true,
+                            "originalRegion": "",
                             "parent_id": "1045007019",
                             "region": [
                                 "de"
@@ -200,9 +190,33 @@
                     "id": "1045007019",
                     "license": [],
                     "license_activated": false,
+                    "originalRegion": "",
                     "parent_id": "1602436186",
                     "region": [
                         "de"
+                    ],
+                    "sdwanRegion": [],
+                    "tenantLicenseType": "PA_ONLY",
+                    "vertical": ""
+                },
+                {
+                    "cdlTenantId": "1229286122",
+                    "children": [],
+                    "display_name": "Deloitte LAB - Private Access",
+                    "featuresEnabled": [],
+                    "featuresSupported": [],
+                    "hasSELicense": false,
+                    "id": "1476986718",
+                    "license": [
+                        "CDL",
+                        "PA",
+                        "PAB_ADDON"
+                    ],
+                    "license_activated": true,
+                    "originalRegion": "",
+                    "parent_id": "1602436186",
+                    "region": [
+                        "americas"
                     ],
                     "sdwanRegion": [],
                     "tenantLicenseType": "PA_ONLY",
@@ -226,6 +240,7 @@
                                         "CDL"
                                     ],
                                     "license_activated": false,
+                                    "originalRegion": "",
                                     "parent_id": "1409951664",
                                     "region": [
                                         "in"
@@ -242,9 +257,11 @@
                             "license": [
                                 "CDL",
                                 "PA",
-                                "SDWAN"
+                                "SDWAN",
+                                "PAB_ADDON"
                             ],
                             "license_activated": true,
+                            "originalRegion": "",
                             "parent_id": "1725521789",
                             "region": [
                                 "in"
@@ -268,9 +285,11 @@
                                     "id": "1381797500",
                                     "license": [
                                         "CDL",
-                                        "PA"
+                                        "PA",
+                                        "PAB_ADDON"
                                     ],
                                     "license_activated": true,
+                                    "originalRegion": "",
                                     "parent_id": "1555616059",
                                     "region": [
                                         "in"
@@ -292,6 +311,7 @@
                                         "PA"
                                     ],
                                     "license_activated": true,
+                                    "originalRegion": "",
                                     "parent_id": "1555616059",
                                     "region": [
                                         "in"
@@ -310,9 +330,34 @@
                                     "id": "1543512475",
                                     "license": [
                                         "CDL",
-                                        "PA"
+                                        "PA",
+                                        "PAB_ADDON"
                                     ],
                                     "license_activated": true,
+                                    "originalRegion": "",
+                                    "parent_id": "1555616059",
+                                    "region": [
+                                        "in"
+                                    ],
+                                    "sdwanRegion": [],
+                                    "tenantLicenseType": "PA_ONLY",
+                                    "vertical": ""
+                                },
+                                {
+                                    "cdlTenantId": "1754732131",
+                                    "children": [],
+                                    "display_name": "TD Bank",
+                                    "featuresEnabled": [],
+                                    "featuresSupported": [],
+                                    "hasSELicense": false,
+                                    "id": "1882987769",
+                                    "license": [
+                                        "CDL",
+                                        "PA",
+                                        "PAB_ADDON"
+                                    ],
+                                    "license_activated": true,
+                                    "originalRegion": "",
                                     "parent_id": "1555616059",
                                     "region": [
                                         "in"
@@ -331,9 +376,11 @@
                                     "id": "1496515042",
                                     "license": [
                                         "CDL",
-                                        "PA"
+                                        "PA",
+                                        "PAB_ADDON"
                                     ],
                                     "license_activated": true,
+                                    "originalRegion": "",
                                     "parent_id": "1555616059",
                                     "region": [
                                         "in"
@@ -355,6 +402,7 @@
                                         "PA"
                                     ],
                                     "license_activated": true,
+                                    "originalRegion": "",
                                     "parent_id": "1555616059",
                                     "region": [
                                         "in"
@@ -373,9 +421,11 @@
                                     "id": "1881642803",
                                     "license": [
                                         "CDL",
-                                        "PA"
+                                        "PA",
+                                        "PAB_ADDON"
                                     ],
                                     "license_activated": true,
+                                    "originalRegion": "",
                                     "parent_id": "1555616059",
                                     "region": [
                                         "in"
@@ -397,6 +447,7 @@
                                         "PA"
                                     ],
                                     "license_activated": true,
+                                    "originalRegion": "",
                                     "parent_id": "1555616059",
                                     "region": [
                                         "in"
@@ -418,6 +469,7 @@
                                         "PA"
                                     ],
                                     "license_activated": true,
+                                    "originalRegion": "",
                                     "parent_id": "1555616059",
                                     "region": [
                                         "in"
@@ -436,9 +488,11 @@
                                     "id": "1687070337",
                                     "license": [
                                         "CDL",
-                                        "PA"
+                                        "PA",
+                                        "PAB_ADDON"
                                     ],
                                     "license_activated": true,
+                                    "originalRegion": "",
                                     "parent_id": "1555616059",
                                     "region": [
                                         "in"
@@ -457,9 +511,11 @@
                                     "id": "1303491867",
                                     "license": [
                                         "CDL",
-                                        "PA"
+                                        "PA",
+                                        "PAB_ADDON"
                                     ],
                                     "license_activated": true,
+                                    "originalRegion": "",
                                     "parent_id": "1555616059",
                                     "region": [
                                         "in"
@@ -478,9 +534,11 @@
                                     "id": "1685347182",
                                     "license": [
                                         "CDL",
-                                        "PA"
+                                        "PA",
+                                        "PAB_ADDON"
                                     ],
                                     "license_activated": true,
+                                    "originalRegion": "",
                                     "parent_id": "1555616059",
                                     "region": [
                                         "in"
@@ -502,6 +560,7 @@
                                         "PA"
                                     ],
                                     "license_activated": true,
+                                    "originalRegion": "",
                                     "parent_id": "1555616059",
                                     "region": [
                                         "in"
@@ -518,6 +577,7 @@
                             "id": "1555616059",
                             "license": [],
                             "license_activated": false,
+                            "originalRegion": "",
                             "parent_id": "1725521789",
                             "region": [
                                 "in"
@@ -534,9 +594,11 @@
                     "id": "1725521789",
                     "license": [
                         "CDL",
-                        "PA"
+                        "PA",
+                        "PAB_ADDON"
                     ],
                     "license_activated": true,
+                    "originalRegion": "",
                     "parent_id": "1602436186",
                     "region": [
                         "in"
@@ -559,32 +621,12 @@
                         "CDL"
                     ],
                     "license_activated": false,
+                    "originalRegion": "",
                     "parent_id": "1602436186",
                     "region": [
                         "americas"
                     ],
                     "sdwanRegion": [],
-                    "vertical": ""
-                },
-                {
-                    "cdlTenantId": "1773563359",
-                    "children": [],
-                    "display_name": "MVP",
-                    "featuresEnabled": [],
-                    "featuresSupported": [],
-                    "hasSELicense": false,
-                    "id": "1350106607",
-                    "license": [
-                        "CDL",
-                        "PA"
-                    ],
-                    "license_activated": true,
-                    "parent_id": "1602436186",
-                    "region": [
-                        "americas"
-                    ],
-                    "sdwanRegion": [],
-                    "tenantLicenseType": "PA_ONLY",
                     "vertical": ""
                 },
                 {
@@ -597,9 +639,11 @@
                     "id": "1573694232",
                     "license": [
                         "CDL",
-                        "PA"
+                        "PA",
+                        "PAB_ADDON"
                     ],
                     "license_activated": true,
+                    "originalRegion": "",
                     "parent_id": "1602436186",
                     "region": [
                         "americas"
@@ -627,6 +671,7 @@
                                         "PA"
                                     ],
                                     "license_activated": true,
+                                    "originalRegion": "",
                                     "parent_id": "1281736170",
                                     "region": [
                                         "americas"
@@ -648,6 +693,7 @@
                                         "PA"
                                     ],
                                     "license_activated": true,
+                                    "originalRegion": "",
                                     "parent_id": "1281736170",
                                     "region": [
                                         "americas"
@@ -669,6 +715,7 @@
                                         "PA"
                                     ],
                                     "license_activated": true,
+                                    "originalRegion": "",
                                     "parent_id": "1281736170",
                                     "region": [
                                         "americas"
@@ -690,6 +737,7 @@
                                         "PA"
                                     ],
                                     "license_activated": true,
+                                    "originalRegion": "",
                                     "parent_id": "1281736170",
                                     "region": [
                                         "americas"
@@ -708,9 +756,11 @@
                                     "id": "1202618680",
                                     "license": [
                                         "CDL",
-                                        "PA"
+                                        "PA",
+                                        "PAB_ADDON"
                                     ],
                                     "license_activated": true,
+                                    "originalRegion": "",
                                     "parent_id": "1281736170",
                                     "region": [
                                         "americas"
@@ -732,6 +782,7 @@
                                         "PA"
                                     ],
                                     "license_activated": true,
+                                    "originalRegion": "",
                                     "parent_id": "1281736170",
                                     "region": [
                                         "americas"
@@ -753,6 +804,7 @@
                                         "PA"
                                     ],
                                     "license_activated": true,
+                                    "originalRegion": "",
                                     "parent_id": "1281736170",
                                     "region": [
                                         "americas"
@@ -769,6 +821,7 @@
                             "id": "1281736170",
                             "license": [],
                             "license_activated": false,
+                            "originalRegion": "",
                             "parent_id": "1468656773",
                             "region": [
                                 "americas"
@@ -792,6 +845,7 @@
                                         "CDL"
                                     ],
                                     "license_activated": false,
+                                    "originalRegion": "",
                                     "parent_id": "1947985383",
                                     "region": [
                                         "americas"
@@ -807,15 +861,20 @@
                             "id": "1947985383",
                             "license": [
                                 "CDL",
-                                "PA"
+                                "PA",
+                                "SDWAN",
+                                "PAB_ADDON"
                             ],
                             "license_activated": true,
+                            "originalRegion": "",
                             "parent_id": "1468656773",
                             "region": [
                                 "americas"
                             ],
-                            "sdwanRegion": [],
-                            "tenantLicenseType": "PA_ONLY",
+                            "sdwanRegion": [
+                                "americas"
+                            ],
+                            "tenantLicenseType": "SASE",
                             "vertical": ""
                         },
                         {
@@ -831,9 +890,11 @@
                                     "id": "1325594141",
                                     "license": [
                                         "CDL",
-                                        "PA"
+                                        "PA",
+                                        "PAB_ADDON"
                                     ],
                                     "license_activated": true,
+                                    "originalRegion": "",
                                     "parent_id": "1351248577",
                                     "region": [
                                         "americas"
@@ -851,9 +912,11 @@
                             "license": [
                                 "CDL",
                                 "PA",
-                                "SDWAN"
+                                "SDWAN",
+                                "PAB_ADDON"
                             ],
                             "license_activated": true,
+                            "originalRegion": "",
                             "parent_id": "1468656773",
                             "region": [
                                 "americas"
@@ -862,6 +925,29 @@
                                 "americas"
                             ],
                             "tenantLicenseType": "SASE",
+                            "vertical": ""
+                        },
+                        {
+                            "cdlTenantId": "1773563359",
+                            "children": [],
+                            "display_name": "MVP",
+                            "featuresEnabled": [],
+                            "featuresSupported": [],
+                            "hasSELicense": false,
+                            "id": "1350106607",
+                            "license": [
+                                "CDL",
+                                "PA",
+                                "PAB_ADDON"
+                            ],
+                            "license_activated": true,
+                            "originalRegion": "",
+                            "parent_id": "1468656773",
+                            "region": [
+                                "americas"
+                            ],
+                            "sdwanRegion": [],
+                            "tenantLicenseType": "PA_ONLY",
                             "vertical": ""
                         },
                         {
@@ -874,9 +960,11 @@
                             "id": "1662769361",
                             "license": [
                                 "CDL",
-                                "PA"
+                                "PA",
+                                "PAB_ADDON"
                             ],
                             "license_activated": true,
+                            "originalRegion": "",
                             "parent_id": "1468656773",
                             "region": [
                                 "americas"
@@ -895,6 +983,7 @@
                         "SDWAN"
                     ],
                     "license_activated": false,
+                    "originalRegion": "",
                     "parent_id": "1602436186",
                     "region": [
                         "americas"
@@ -902,7 +991,7 @@
                     "sdwanRegion": [
                         "americas"
                     ],
-                    "tenantLicenseType": "PA_SDWAN",
+                    "tenantLicenseType": "SASE",
                     "vertical": ""
                 },
                 {
@@ -915,9 +1004,11 @@
                     "id": "1277947925",
                     "license": [
                         "CDL",
-                        "PA"
+                        "PA",
+                        "PAB_ADDON"
                     ],
                     "license_activated": true,
+                    "originalRegion": "",
                     "parent_id": "1602436186",
                     "region": [
                         "americas"
@@ -928,20 +1019,30 @@
                 }
             ],
             "display_name": "DT US Member Firm",
-            "featuresEnabled": [],
-            "featuresSupported": [],
+            "featuresEnabled": [
+                {
+                    "name": "BULK_CONFIG",
+                    "status": "SUCCESS"
+                }
+            ],
+            "featuresSupported": [
+                {
+                    "name": "BULK_CONFIG"
+                }
+            ],
             "hasSELicense": false,
             "id": "1602436186",
             "license": [
                 "CDL",
                 "PA",
-                "SDWAN"
+                "SDWAN",
+                "PAB_ADDON"
             ],
             "license_activated": true,
-            "parent_id": "1884217747",
+            "originalRegion": "",
             "region": [
-                "americas",
                 "de",
+                "americas",
                 "in"
             ],
             "sdwanRegion": [
@@ -952,9 +1053,9 @@
         }
     ],
     "header": {
-        "createdAt": "2026-06-02T21:03:44Z",
-        "clientRequestId": "5e5366de-19ad-44db-aa5e-7e36c1847514",
-        "dataCount": 45,
+        "createdAt": "2026-09-24T19:42:43Z",
+        "clientRequestId": "e7f93399-d1fb-4ece-b29c-fd9d65c06fac",
+        "dataCount": 46,
         "status": {
             "subCode": 200
         }

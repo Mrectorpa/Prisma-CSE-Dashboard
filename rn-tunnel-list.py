@@ -1,0 +1,22 @@
+import requests
+
+url = "https://api.sase.paloaltonetworks.com/insights/v3.0/resource/query/tunnels/tunnel_list"
+
+payload = {"filter": {
+    "rules": [
+      {
+        "property": "event_time",
+        "operator": "last_n_days",
+        "values": [30]
+      }
+    ]
+  }
+ }
+headers = {
+    'Accept': 'application/json',
+    'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJraWQiOiJyc2Etc2lnbi1wa2NzMS0yMDQ4LXNoYTI1Ni8xIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJhMzlkN2M3OS1hMDQwLTRiZGEtYjYxZC1jNGI4M2YyMDFiOTkiLCJjdHMiOiJPQVVUSDJfU1RBVEVMRVNTX0dSQU5UIiwiYXVkaXRUcmFja2luZ0lkIjoiMWM3NmUzMGQtZDM5OS00MzZlLWE3ZGQtODNlZmFlYTNlMWM0LTEyNDc2ODc0NyIsInN1Ym5hbWUiOiJhMzlkN2M3OS1hMDQwLTRiZGEtYjYxZC1jNGI4M2YyMDFiOTkiLCJpc3MiOiJodHRwczovL2F1dGguYXBwcy5wYWxvYWx0b25ldHdvcmtzLmNvbTo0NDMvYW0vb2F1dGgyIiwidG9rZW5OYW1lIjoiYWNjZXNzX3Rva2VuIiwidG9rZW5fdHlwZSI6IkJlYXJlciIsImF1dGhHcmFudElkIjoiQ1F3Q2x6UVdlLVMzVG95OW9sYWN0TlUyNU00IiwiYXVkIjoibXJlY3Rvci1zZXJ2aWNlLWFjY291bnRAMTYwMjQzNjE4Ni5pYW0ucGFuc2VydmljZWFjY291bnQuY29tIiwibmJmIjoxNzgwMDYxOTI4LCJncmFudF90eXBlIjoiY2xpZW50X2NyZWRlbnRpYWxzIiwic2NvcGUiOlsidHNnX2lkOjEzNTEyNDg1NzciLCJwcm9maWxlIiwiZW1haWwiXSwiYXV0aF90aW1lIjoxNzgwMDYxOTI4LCJyZWFsbSI6Ii8iLCJleHAiOjE3ODAwNjI4MjgsImlhdCI6MTc4MDA2MTkyOCwiZXhwaXJlc19pbiI6OTAwLCJqdGkiOiIzcTlSQTdYckdCT1FYN2xuRmRKd1pnV2RmdUkiLCJ0c2dfaWQiOiIxMzUxMjQ4NTc3IiwiYWNjZXNzIjp7InBybjoxMzUxMjQ4NTc3Ojo6OiI6WyJzdXBlcnVzZXIiLCJiYXNlIl19fQ.OK35Jf_OUKTtRXFQhT9oq1lYpi45MTHOsRPJtWFGQxImWxAH7Ea9ATAafwG0hiILU7UvPKMxybDPe7eEp9Z9wiEK1QOmHpSFs1bFwJII29KeRLP1i4AoQ0jrIYl7I-w6OhiuDo5LrRrcICNtUT6XlbVSQBwuX21CFJYHPAXlHU43I_y32ismOWm2S9t0K8vtDCT5L3u7c05n1uDgrlqNukldSB6Ia_WzhloPfJFj9mdlS0Bm5xaJKZ5ME8JfOm7qj9nPK-xdL82WWlHnB7gHK_xspIe-jRtZn54_JPa92rf-5SCcNIBFA6bWnxVlHUKWZ03rAoEDKUHxU7Hz1xrqfQ'
+}
+
+response = requests.request("POST", url, json=payload, headers=headers)
+
+print(response.text)
